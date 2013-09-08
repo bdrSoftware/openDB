@@ -1,0 +1,61 @@
+/* Copyright 2013 Salvatore Barone <salvator.barone@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+#include "schema.hpp"
+
+#if !defined __WINDOWS_COMPILING_
+	#include <unistd.h>
+	#include <sys/stat.h>
+	#include <sys/types.h>
+#else
+//#include ??
+#endif
+
+using namespace openDB;
+
+schema::schema (std::string schemaName, std::string storageDirectory) throw (basic_exception&) {
+
+	(schemaName != "" ? __schemaName = schemaName : throw access_exception("Error creating schema: you can not create a schema with no name. Check the 'schemaName' paramether."));
+	
+	#if !defined __WINDOWS_COMPILING_
+		(storageDirectory != "" ? __storageDirectory = storageDirectory + __schemaName + "/" : throw storage_exception("Error creating schema '" + schemaName + "': you must specify where to store this schema. Check the 'storageDirectory' paramether."));
+		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux	*/
+		mkdir(__storageDirectory.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	#else
+		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo windows	*/
+	#endif
+};
+
+
+void schema::add_table(table& _tableObject) throw (basic_exception&) {}
+
+std::unique_ptr<std::list<std::string>> schema::tables_name (bool attach_schema_name) const throw () {
+	std::unique_ptr<std::list <std::string>> list_ptr(new std::list<std::string>);
+	for (std::unordered_map <std::string, table>::const_iterator it = __tablesMap.begin(); it != __tablesMap.end(); it++)
+		(attach_schema_name ? list_ptr -> push_back(__schemaName + "." + (it -> first)) : list_ptr -> push_back(it -> first));
+	return list_ptr;
+}
+
+std::unordered_map<std::string, table>::const_iterator schema::get_iterator(std::string tableName) const throw (table_not_exists&) {
+	std::unordered_map <std::string, table>::const_iterator it = __tablesMap.find(tableName);
+	if (it != __tablesMap.end())
+		return it;
+	else
+		throw table_not_exists("'" + tableName + "' doesn't exists in schema '" + __schemaName + "'");
+}
+
+std::unordered_map<std::string, table>::iterator schema::get_iterator(std::string tableName) throw (table_not_exists&) {
+	std::unordered_map <std::string, table>::iterator it = __tablesMap.find(tableName);
+	if (it != __tablesMap.end())
+		return it;
+	else
+		throw table_not_exists("'" + tableName + "' doesn't exists in schema '" + __schemaName + "'");
+}
