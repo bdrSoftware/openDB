@@ -23,8 +23,8 @@ using namespace openDB;
 
 const std::string database::__tmpStorageDirectory = "platinet";
 
-database::database(std::string databaseName) throw (access_exception&) {
-	(databaseName != "" ? __databaseName = databaseName : throw access_exception("Error creating database: you can not create a database with no name. Check the 'databaseName' paramether."));
+database::database(std::string databaseName) throw (storage_exception&) {
+	(databaseName != "" ? __databaseName = databaseName : throw storage_exception("Error creating database: you can not create a database with no name, it's used in storing operation.  Check the 'databaseName' paramether."));
 	#if !defined __WINDOWS_COMPILING_
 		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux	*/
 		__storageDirectory = "/tmp/" + __tmpStorageDirectory + "/";
