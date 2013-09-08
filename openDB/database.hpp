@@ -15,11 +15,16 @@
 #include "schema.hpp"
 
 namespace openDB {
-/*
+/* Un oggetto di tipo database astrae il concetto di database sql. Mette a disposizione la possibilità di definire schemi (vedi oggetto schema, definito nell'header
+ * schema.hpp), tabelle (vedi header table.hpp) e colonne (vedi header column.hpp) di alcuni tipi sql basilari (vedi header sqlType.hpp).
+ * Gli oggetti definiti in questa libreria definiscono metodologie per la creazione di comandi sql da inviare ad un DBMS per gestire inserimento di nuove informazioni,
+ * modifica o eliminazione di informazioni esistenti, recupero di informazioni anche complesse dal DBMS.
  */
 class database {
 public:
-		/*
+		/* Per costruire un oggetto di tipo database è necessario specificare un nome. Tale nome viene utilizzato per la memorizzazione di tutte le informazioni relative
+		 * agli oggetti di tipo schema e table che ne compongono la struttura. Le informazioni vengono salvate in una cartella il cui nome corrisponde al nome indicati.
+		 * Se il nome non viene indicato viene generata una eccezione di tipo 'storage_exception'.
 		 */
 		explicit database(std::string databaseName) throw (storage_exception&);
 
@@ -28,17 +33,18 @@ public:
 		std::string name() const throw ()
 			{return __databaseName;}
 
-		/*
+		/* La funzione consente l'aggiunta di uno schema alla struttura del database. Se esiste già uno schema con nome uguale a quello che si sta per inserire, viene
+		 * generata una eccezione di tipo 'schema_exists', derivata da 'access_exception'
 		 */
 		void add_schema(std::string schemaName) throw (schema_exists&)
 			{(find_schema(schemaName) ? throw("Schema '" + schemaName + "' already exists in database '" + __databaseName + "'") : __schemasMap.emplace(schemaName, schema(schemaName, __storageDirectory)));}
 
-		/*
+		/* La funzione restituisce il numero di schemi che compongono il database.
 		 */
 		unsigned number_of_schemas() const throw ()
 			{return __schemasMap.size();}
 
-		/*
+		/* La funzione schemas_name restituisce una lista di stringhe contenente i nomi degli schemi che compongono il database
 		 */
 		std::unique_ptr<std::list<std::string>> schemas_name (bool attach_database_name = false) const throw ();
 
@@ -53,7 +59,10 @@ public:
 		void drop_schema(std::string schemaName) throw (schema_not_exists&)
 			{__schemasMap.erase(get_iterator(schemaName));}
 
-		/*
+		/* La funzione get_schema restituisce un riferimento, sia costante che non, ad un oggetto schema, di cui si specifica il nome, che compone la struttura di un oggetto
+		 * database. Non si tratta di una copia, ma dell'oggetto vero e proprio. Tale riferimento può essere usato per richiamare direttamente i metodi della classe schema
+		 * con molta più rapidità.
+		 * La versione che restituisce un riferimento costante torna utile quando ci si vuole assicurare che nessuna modificazione venga subita dall'oggetto in questione.
 		 *
 		 */
 		schema& get_schema(std::string schemaName) throw (schema_not_exists&)
