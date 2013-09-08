@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20110701" xmlns:xmi="http://www.omg.org/spec/XMI/20110701" xmlns:uml="http://www.eclipse.org/uml2/4.0.0/UML" xmi:id="_spwIUBh0EeO9KZd_q5jcSg" name="model">
+  <packagedElement xmi:type="uml:Class" xmi:id="_wfzM0Bh0EeO9KZd_q5jcSg" name="basic_exception"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_3G6qwBh0EeO9KZd_q5jcSg" name="data_exception">
+    <generalization xmi:type="uml:Generalization" xmi:id="_virn0Bh1EeO9KZd_q5jcSg" general="_wfzM0Bh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_5IbPgBh0EeO9KZd_q5jcSg" name="access_exception">
+    <generalization xmi:type="uml:Generalization" xmi:id="_wNzBYBh1EeO9KZd_q5jcSg" general="_wfzM0Bh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_64EoMBh0EeO9KZd_q5jcSg" name="storage_exception">
+    <generalization xmi:type="uml:Generalization" xmi:id="_wnTGgBh1EeO9KZd_q5jcSg" general="_wfzM0Bh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_OCfZMBh2EeO9KZd_q5jcSg" name="key_empty">
+    <generalization xmi:type="uml:Generalization" xmi:id="_oFY6YBh2EeO9KZd_q5jcSg" general="_3G6qwBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_SAnboBh2EeO9KZd_q5jcSg" name="invalid_argument">
+    <generalization xmi:type="uml:Generalization" xmi:id="_okX8cBh2EeO9KZd_q5jcSg" general="_3G6qwBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_TdqBYBh2EeO9KZd_q5jcSg" name="ambiguous_value">
+    <generalization xmi:type="uml:Generalization" xmi:id="_pGM3IBh2EeO9KZd_q5jcSg" general="_3G6qwBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_V2ikUBh2EeO9KZd_q5jcSg" name="value_too_long">
+    <generalization xmi:type="uml:Generalization" xmi:id="_pnSyABh2EeO9KZd_q5jcSg" general="_3G6qwBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_aSvp4Bh2EeO9KZd_q5jcSg" name="out_of_bound">
+    <generalization xmi:type="uml:Generalization" xmi:id="_qFei0Bh2EeO9KZd_q5jcSg" general="_3G6qwBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_fVRvoBh2EeO9KZd_q5jcSg" name="invalid_time">
+    <generalization xmi:type="uml:Generalization" xmi:id="_nAoRwBh2EeO9KZd_q5jcSg" general="_3G6qwBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_iJFUABh2EeO9KZd_q5jcSg" name="invalid_date">
+    <generalization xmi:type="uml:Generalization" xmi:id="_nigPwBh2EeO9KZd_q5jcSg" general="_3G6qwBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_0vP94Bh2EeO9KZd_q5jcSg" name="column_exists">
+    <generalization xmi:type="uml:Generalization" xmi:id="_GMB90Bh3EeO9KZd_q5jcSg" general="_5IbPgBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_3ZXawBh2EeO9KZd_q5jcSg" name="column_not_exists">
+    <generalization xmi:type="uml:Generalization" xmi:id="_GqKrUBh3EeO9KZd_q5jcSg" general="_5IbPgBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_5S2r8Bh2EeO9KZd_q5jcSg" name="table_exists">
+    <generalization xmi:type="uml:Generalization" xmi:id="_JtDNgBh3EeO9KZd_q5jcSg" general="_5IbPgBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_7cyz8Bh2EeO9KZd_q5jcSg" name="table_not_exists">
+    <generalization xmi:type="uml:Generalization" xmi:id="_KNoyEBh3EeO9KZd_q5jcSg" general="_5IbPgBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_-3tboBh2EeO9KZd_q5jcSg" name="schema_exists">
+    <generalization xmi:type="uml:Generalization" xmi:id="_K0BcoBh3EeO9KZd_q5jcSg" general="_5IbPgBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_AJrZ0Bh3EeO9KZd_q5jcSg" name="schema_not_exists">
+    <generalization xmi:type="uml:Generalization" xmi:id="_LODtQBh3EeO9KZd_q5jcSg" general="_5IbPgBh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+</uml:Model>
