@@ -13,6 +13,34 @@
 #ifndef __OPENDB_STORAGE_HEADER__
 #define __OPENDB_STORAGE_HEADER__
 
-namespace openDB{
+#include "record.hpp"
+#include "exception.hpp"
+
+namespace openDB {
+class storage {
+public :
+		storage() throw () : __lastKey(0) {};
+		virtual ~storage () {}
+
+		virtual void internalID	(std::unique_ptr<std::list<unsigned long>>& ptr) const throw () = 0;
+		virtual std::unique_ptr<std::list<unsigned long>> internalID () const throw () = 0;
+		virtual unsigned long numTuples	() const throw () = 0;
+		virtual void clear () throw () = 0;
+
+		virtual unsigned long insert (const std::list<std::string>& values, const std::list<column>& structure, enum record::state _status)	throw (storage_exception&) = 0;
+		virtual void update (unsigned long ID, const std::list<std::string>& values, const std::list<column>& structure) throw (storage_exception&)	= 0;
+		virtual void cancel (unsigned long ID) throw (storage_exception&) = 0;
+		virtual void erase (unsigned long ID) throw (storage_exception&)	= 0;
+
+		virtual enum record::state state (unsigned long ID)	const	throw (storage_exception&)	= 0;
+		virtual bool visible (unsigned long ID)	const throw (storage_exception&)	= 0;
+
+		std::unique_ptr<std::unordered_map<std::string, std::string>> current(unsigned long ID) const throw ();
+		std::unique_ptr<std::unordered_map<std::string, std::string>> old(unsigned long ID) const throw ();
+
+	protected :
+		unsigned long 		__lastKey;
+}; /* end of storage class definition */
+
 }; /*	end of openDB namespace	*/
 #endif

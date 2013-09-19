@@ -95,4 +95,32 @@
       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_i61J8hiKEeO9KZd_q5jcSg" value="1"/>
     </ownedEnd>
   </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_NV3CwCE0EeOtCo2P_VX_ag" name="storage"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_Ur6qUCE0EeOtCo2P_VX_ag" name="file_storage">
+    <generalization xmi:type="uml:Generalization" xmi:id="_Y9J2ACE0EeOtCo2P_VX_ag" general="_NV3CwCE0EeOtCo2P_VX_ag"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_V3u9MCE0EeOtCo2P_VX_ag" name="memory_storage">
+    <generalization xmi:type="uml:Generalization" xmi:id="_ZpbGICE0EeOtCo2P_VX_ag" general="_NV3CwCE0EeOtCo2P_VX_ag"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_bhTNwCE0EeOtCo2P_VX_ag" name="record"/>
+  <packagedElement xmi:type="uml:Association" xmi:id="_EwkygCE1EeOtCo2P_VX_ag" name="" memberEnd="_EwkygSE1EeOtCo2P_VX_ag _Ewc2sCE1EeOtCo2P_VX_ag">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_EwkygSE1EeOtCo2P_VX_ag" name="" type="_NV3CwCE0EeOtCo2P_VX_ag" aggregation="composite" association="_EwkygCE1EeOtCo2P_VX_ag">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_EwkygiE1EeOtCo2P_VX_ag" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_EwkygyE1EeOtCo2P_VX_ag" value="1"/>
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_Ewc2sCE1EeOtCo2P_VX_ag" name="" type="_fIHEEBh7EeO9KZd_q5jcSg" association="_EwkygCE1EeOtCo2P_VX_ag">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Ewc2sSE1EeOtCo2P_VX_ag" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Ewc2siE1EeOtCo2P_VX_ag" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_OCwIgCE1EeOtCo2P_VX_ag" name="" memberEnd="_OCwIgSE1EeOtCo2P_VX_ag _OCpa0CE1EeOtCo2P_VX_ag">
+    <ownedEnd xmi:type="uml:Property" xmi:id="_OCwIgSE1EeOtCo2P_VX_ag" name="" type="_NV3CwCE0EeOtCo2P_VX_ag" association="_OCwIgCE1EeOtCo2P_VX_ag">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_OCwIgiE1EeOtCo2P_VX_ag"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_OCwIgyE1EeOtCo2P_VX_ag" value="*"/>
+    </ownedEnd>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_OCpa0CE1EeOtCo2P_VX_ag" name="" type="_bhTNwCE0EeOtCo2P_VX_ag" aggregation="shared" association="_OCwIgCE1EeOtCo2P_VX_ag">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_OCpa0SE1EeOtCo2P_VX_ag" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_OCpa0iE1EeOtCo2P_VX_ag" value="1"/>
+    </ownedEnd>
+  </packagedElement>
 </uml:Model>
