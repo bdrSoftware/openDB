@@ -73,7 +73,7 @@ date::date_integer date::convert (std::string __value) const throw (data_excepti
 			_date.day = std::stoul(*token_it);
 		}
 		else
-		if (token_it->size() == 2) { 						//la data è nel formato dd/mm/yyyy ?
+		if (token_it->size() >= 1) { 						//la data è nel formato dd/mm/yyyy ?
 			_date.day = std::stoul(*token_it++);
 			_date.month = std::stoul(*token_it++);
 			if (token_it->size() == 4)						//la data è nel formato dd/mm/yyyy
@@ -140,7 +140,7 @@ time::time_integer time::convert (std::string __value) const throw (data_excepti
 	try {
 		_time.hour = std::stoul(*token_it++);
 		_time.minute = std::stoul(*token_it++);
-		if (token->size() != 2)
+		if (token->size() == 2)
 			_time.second = 0;
 		else
 			_time.second = std::stoul(*token_it);

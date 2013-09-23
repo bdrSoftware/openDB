@@ -12,7 +12,6 @@
 
 #include "common.hpp"
 
-
 std::unique_ptr<std::list <std::string>> openDB::tokenize (std::string _string, char sep) throw () {
 	std::unique_ptr<std::list <std::string>> list_ptr(new std::list <std::string>);
 	std::string token;
@@ -36,14 +35,14 @@ std::unique_ptr<std::list <std::string>> openDB::tokenize (std::string _string, 
 	return list_ptr;
 }
 
-void write (std::fstream& stream, const std::string& _string) throw () {
+void openDB::write (std::fstream& stream, const std::string& _string) throw () {
 	unsigned length;
 	length = _string.size();
 	stream.write(reinterpret_cast <const char*> (&length), sizeof (unsigned));
 	stream.write(_string.c_str(), length);
 }
 
-void read (std::fstream& stream, std::string& _string) throw () {
+void openDB::read (std::fstream& stream, std::string& _string) throw () {
 	unsigned length;
 	char* tmp;
 	stream.read(reinterpret_cast <char*> (&length), sizeof (unsigned));
@@ -53,14 +52,14 @@ void read (std::fstream& stream, std::string& _string) throw () {
 	delete [] tmp;
 }
 
-void write (std::fstream& stream, const std::list <std::string>& _list) throw () {
+void openDB::write (std::fstream& stream, const std::list <std::string>& _list) throw () {
 	unsigned elementNumber = _list.size();
 	stream.write(reinterpret_cast<const char*> (&elementNumber), sizeof(unsigned));
 	for (std::list <std::string>::const_iterator it = _list.begin(); it != _list.end(); it++)
 		write(stream, *it);
 }
 
-void read (std::fstream& stream, std::list <std::string>& _list) throw () {
+void openDB::read (std::fstream& stream, std::list <std::string>& _list) throw () {
 	unsigned elementNumber;
 	stream.read(reinterpret_cast <char*> (&elementNumber), sizeof(unsigned));
 	std::string _string;

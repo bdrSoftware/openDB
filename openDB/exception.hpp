@@ -136,6 +136,30 @@ class schema_exists : public access_exception {
 public:
 	schema_exists (std::string __message) : access_exception(__message) {}
 };
+/*
+ */
+class record_not_exists : public storage_exception {
+public:
+	record_not_exists (std::string __message) : storage_exception(__message) {}
+};
+/*
+ */
+class file_creation : public storage_exception {
+public:
+	file_creation (std::string __message) : storage_exception(__message) {}
+};
+/*
+ */
+class file_open : public storage_exception {
+public:
+	file_open (std::string __message) : storage_exception(__message) {}
+};
+/*
+ */
+class io_error : public storage_exception {
+public:
+	io_error (std::string __message) : storage_exception(__message) {}
+};
 };	/* end of openDB namespace */
 
 #endif

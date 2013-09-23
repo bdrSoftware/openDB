@@ -12,3 +12,41 @@
 
 #include "memory_storage.hpp"
 using namespace openDB;
+
+std::unique_ptr<std::list<unsigned long>> memory_storage::internalID () const throw () {
+	std::unique_ptr<std::list<unsigned long>> list_ptr (new std::list<unsigned long>);
+	for (std::unordered_map<unsigned long, record>::const_iterator it = __recordMap.begin(); it!= __recordMap.end(); it++)
+		list_ptr->push_back(it->first);
+	return list_ptr;
+}
+
+unsigned long memory_storage::insert (std::unordered_map<std::string, std::string>& valuesMap, std::unordered_map<std::string, column>& columnsMap, enum record::state _state) throw (basic_exception&) {
+	record _record(valuesMap, columnsMap, _state);
+	__lastKey++;
+	__recordMap.insert(std::pair<unsigned long, record>(__lastKey, _record));
+	return __lastKey;
+}
+
+void memory_storage::erase (unsigned long ID) throw (storage_exception&) {
+	std::unordered_map<unsigned long, record>::iterator it = __recordMap.find(ID);
+	if (it != __recordMap.end())
+		__recordMap.erase(it);
+	else
+		throw record_not_exists("There is no record with " + std::to_string(ID) + " id.");
+}
+
+const record& memory_storage::get_record(unsigned long ID) const throw (storage_exception&) {
+	std::unordered_map<unsigned long, record>::const_iterator it = __recordMap.find(ID);
+	if (it != __recordMap.end())
+		return it->second;
+	else
+		throw record_not_exists("There is no record with " + std::to_string(ID) + " id.");
+}
+
+record& memory_storage::get_record(unsigned long ID) throw (storage_exception&) {
+	std::unordered_map<unsigned long, record>::iterator it = __recordMap.find(ID);
+	if (it != __recordMap.end())
+		return it->second;
+	else
+		throw record_not_exists("There is no record with " + std::to_string(ID) + " id.");
+}

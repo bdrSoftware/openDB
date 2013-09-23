@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <memory>
 #include <fstream>
+#include "column.hpp"
 #include "exception.hpp"
 
 namespace openDB{
@@ -43,9 +44,14 @@ public:
 	 * 				 sqlType.hpp per i dettagli.
 	 * 	- columnsMap : mappa delle colonne che compongono una tabella. Questo parametro viene utilizzato per la validazione dei valori contenuti in valueMap.
 	 * 	- _state : rappresenta lo stato della tupla.
+	 * Quando si crea un oggetto record con il costruttore con argomenti, possono essere generate le seguenti tipologie di eccezione:
+	 * - key_empty : se ad una colonna chiave, o che compone la chiave, è associato un valore nullo.
+	 * - column_not_exists : se una delle corrispondenze colonna-valore in valuesMap non è valida, cioè la colonna non esiste in columnsMap;
+	 * - data_exception : viene generata una eccezione di tipo derivato da data_exception (vedi header 'exception.hpp') quando la corrispondenza colonna-valore non è
+	 * 					  valida a causa di un errore dovuto ad un valore non compatibile con il tipo della colonna.
 	 */
 	record () throw () : __state(empty), __visible(false) {}
-	record (std::unordered_map<std::string, std::string>& valuesMap, std::unordered_map<std::string, column> columnsMap, enum state _state) throw (basic_exception&);
+	record (std::unordered_map<std::string, std::string>& valuesMap, std::unordered_map<std::string, column>& columnsMap, enum state _state) throw (basic_exception&);
 
 	/* La funzione update consente di marcare i valori di una tupla affinchè siano aggiornati correttamente. Prende i seguenti parametri:
 	 * consente di creare una tupla in modo corretto, inserendo opportunamente i dati. I paramentri sono:
@@ -54,22 +60,22 @@ public:
 	 * 				 non fosse valido per il tipo di colonna al quale deve corrispondere, viene generata una eccezione derivata da data_exception. Vedi l'header
 	 * 				 sqlType.hpp per i dettagli.
 	 * 	- columnsMap : mappa delle colonne che compongono una tabella. Questo parametro viene utilizzato per la validazione dei valori contenuti in valueMap.
+	 * 	Quando si aggiorna un oggetto record possono essere generate le seguenti tipologie di eccezione:
+	 * - column_not_exists : se una delle corrispondenze colonna-valore in valuesMap non è valida, cioè la colonna non esiste in columnsMap;
+	 * - data_exception : viene generata una eccezione di tipo derivato da data_exception (vedi header 'exception.hpp') quando la corrispondenza colonna-valore non è
+	 * 					  valida a causa di un errore dovuto ad un valore non compatibile con il tipo della colonna.
 	 */
-	void update (std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column> columnsMap) throw (basic_exception&);
+	void update (std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (basic_exception&);
 
-	/* La funzione cancel marca una tupla affinchè sia rimossa dal database remoto all'atto del commit.
-	 */
-	void cancel () throw ();
+	/* La funzione cancel marca una tupla affinchè sia rimossa dal database remoto all'atto del commit. */
+	void cancel () throw ()
+		{__state = deleting; __visible = false;}
 
-	/* La funzione erase cancella il contenuto di una tupla, portandola nello stato in cui si fosse trovata se creata col costruttore senza argomenti.
-	 */
-	void erase () throw ();
-
-	/*	*/
+	/* restituisce lo stato in cui si trova la tupla */
 	enum state state () const throw ()
 			{return __state;}
 
-	/*	*/
+	/* restituisce true se la tupla è visibile */
 	bool visible () const throw ()
 			{return __visible;}
 
@@ -94,10 +100,19 @@ public:
 
 private:
 	enum state											__state;
-	struct {std::string current;	std::string old;}	value;
+	struct 	value {
+		std::string current;
+		std::string old;
+		value (std::string c, std::string o) : current(c), old(o) {}
+	};
 	std::unordered_map<std::string, value>				__valueMap;
 	bool												__visible;
 
+	void validate_column_name(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) const throw (column_not_exists&);
+	void validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) const throw (data_exception&);
+	void build_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (key_empty&);
+	void update_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw ();
+
 };	/*	end of record declaration	*/
-}; /*	end of openDB namespace	*/
+}; 	/*	end of openDB namespace	*/
 #endif /* TUPLE_HPP_ */

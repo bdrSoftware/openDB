@@ -83,7 +83,7 @@ public:
 		 * 					ottiene non rientra nel range di valori del tipo della colonna;
 		 * - value_too_long: se la colonna è di tipo character o varchar e la lunghezza della stringa è più lunga della dimensione massima consentita.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&)
+		void validate_value(std::string value) const throw(data_exception&)
 			{((__isKey && value=="") ? throw key_empty("'" + __columnName + "' is key! Empty strings aren't allowed!") : __columnType->validate_value(value));}
 
 		/* Il compito della funzione prepare_value è quello di preparare un valore in modo che esso possa essere parte di un comando sql di inserimento, modifica, cancellazione o

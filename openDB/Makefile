@@ -3,8 +3,8 @@ OPZ = -ggdb3 -Wall -Wextra -fPIC -std=c++11
 
 .PHONY: clean
 
-openDB.a : common.o sqlType.o queryAttribute.o column.o table.o schema.o database.o
-	ar rcs openDB.a common.o sqlType.o queryAttribute.o column.o table.o schema.o database.o
+openDB.a : common.o sqlType.o queryAttribute.o column.o record.o memory_storage.o file_storage.o table.o schema.o database.o
+	ar rcs openDB.a sqlType.o queryAttribute.o column.o common.o record.o memory_storage.o file_storage.o table.o schema.o database.o
 
 clean :
 	rm -f openDB.a *.o unitTest
@@ -25,6 +25,15 @@ queryAttribute.o :  queryAttribute.cpp queryAttribute.hpp
 	
 column.o : column.cpp column.hpp
 	$(CC) $(OPZ) -c -o column.o column.cpp
+
+record.o : record.cpp record.hpp
+	$(CC) $(OPZ) -c -o record.o record.cpp
+
+memory_storage.o : memory_storage.cpp memory_storage.hpp
+	$(CC) $(OPZ) -c -o memory_storage.o memory_storage.cpp
+
+file_storage.o : file_storage.cpp file_storage.hpp
+	$(CC) $(OPZ) -c -o file_storage.o file_storage.cpp 
 
 table.o : table.cpp table.hpp
 	$(CC) $(OPZ) -c -o table.o table.cpp
