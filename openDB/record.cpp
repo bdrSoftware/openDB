@@ -56,7 +56,7 @@ std::unique_ptr<std::unordered_map<std::string, std::string>> record::old() cons
 }
 
 std::streamoff record::size() const throw () {
-	unsigned long size = 3 * sizeof(unsigned) * __valueMap.size() + sizeof(unsigned);
+	unsigned long size = 3 * sizeof(unsigned) * __valueMap.size() + sizeof(unsigned) + sizeof(bool) + sizeof(enum state);
 	for (std::unordered_map<std::string, value>::const_iterator it = __valueMap.begin(); it != __valueMap.end(); it++)
 		size += it->first.size() + it->second.current.size() + it->second.old.size();
 	return (std::streamoff) size;
