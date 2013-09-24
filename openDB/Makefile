@@ -1,7 +1,7 @@
 CC = g++
 OPZ = -ggdb3 -Wall -Wextra -fPIC -std=c++11
 
-.PHONY: clean
+.PHONY: clean rebuild
 
 openDB.a : common.o sqlType.o queryAttribute.o column.o record.o memory_storage.o file_storage.o table.o schema.o database.o
 	ar rcs openDB.a sqlType.o queryAttribute.o column.o common.o record.o memory_storage.o file_storage.o table.o schema.o database.o
@@ -9,10 +9,11 @@ openDB.a : common.o sqlType.o queryAttribute.o column.o record.o memory_storage.
 clean :
 	rm -f openDB.a *.o unitTest
 
+rebuild : clean openDB.a
+
 unitTest : openDB.a unitTest.cpp
 	$(CC) $(OPZ) -c -o unitTest.o unitTest.cpp
 	$(CC) -o unitTest unitTest.o openDB.a
-
 
 common.o : common.hpp common.cpp
 	$(CC) $(OPZ) -c -o common.o common.cpp

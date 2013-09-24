@@ -34,7 +34,7 @@ public :
 
 		/* La funzione numRecords restituisce il numero di record gestiti. Corrisponde al numero di chiavi valide.
 		 */
-		virtual unsigned long numRecords	() const throw ()
+		virtual unsigned long numRecords () const throw ()
 			{return __recordMap.size();}
 
 		/* La funzione clear svuota il gestore, liberando lo spazio occupato dai record e riportando il gestore allo stato in cui si troverebbe se fosse stato appena

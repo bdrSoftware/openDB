@@ -13,6 +13,9 @@
 #define __OPENDB_TABLE_HEADER__
 
 #include "column.hpp"
+#include "storage.hpp"
+#include "memory_storage.hpp"
+#include "file_storage.hpp"
 #include <memory>
 #include <list>
 #include <unordered_map>
@@ -158,7 +161,123 @@ public:
 			{return get_iterator(columnName)->second;}
 		const column& get_column(std::string columnName) const throw (column_not_exists&)
 			{return get_iterator(columnName)->second;}
-		
+
+		/* La funzione membro 'internalID' restituisce un oggetto std::list di unsigned long, più precisamente un oggetto unique_ptr contenente un puntatore ad un oggetto
+		 * std::list<unsigned long>, che contiene l'elenco delle chiavi generate che sono ancora valide.
+		 * Una chiave è valida quando la corrispondenza chiave-valore è valida, cioè quando ne chiave ne valore sono oggetto di cancellazione.
+		 */
+		std::unique_ptr<std::list<unsigned long>> internalID () const throw ()
+			{return __storage->internalID();}
+
+		/* La funzione numRecords restituisce il numero di record gestiti. Corrisponde al numero di chiavi valide.
+		 */
+		unsigned long numRecords () const throw ()
+			{return __storage->numRecords();}
+
+		/* La funzione clear svuota il gestore, liberando lo spazio occupato dai record e riportando il gestore allo stato in cui si troverebbe se fosse stato appena
+		 * creato.
+		 */
+		void clear () throw ()
+			{__storage->clear();}
+
+		/* La funzione insert consente di creare un nuovo record e di inserirlo tra quelli gestiti dal gestore.
+		 * I paramentri sono:
+		 * 	- valueMap : mappa il cui primo campo è il nome della colonna in cui inserire il valore contenuto nel secondo campo. Se non esiste nessuna colonna con il nome
+		 * 				 specificato, viene generata una eccezione di tipo column_not_exists, derivata da access_exception. Se uno dei valori contenuti nel secondo campo
+		 * 				 non fosse valido per il tipo di colonna al quale deve corrispondere, viene generata una eccezione derivata da data_exception. Vedi l'header
+		 * 				 sqlType.hpp per i dettagli.
+		 * 	- columnsMap : mappa delle colonne che compongono una tabella. Questo parametro viene utilizzato per la validazione dei valori contenuti in valueMap.
+		 * 	- _state : rappresenta lo stato del record.
+		 * 	Lo stato del record può essere:
+		 *  - record::empty : una tupla viene creata emty quando bisogna, ad esempio, leggerla da file oppure da memoria. Costruire una tupla vuota non ha molto senso se
+		 * 					  non in questo contesto;
+		 *  - record::loaded : una tupla DEVE essere creata loaded nel caso in cui viene caricata dal database gestito;
+		 *  - record::inserting : una tupla viene creata inserting quando i dati che contiene devono essere inseriti nel database remoto;
+		 *  - record::updating : una tupla con stato updating è una tupla, già esistente nel database, i cui valori devono essere aggiornati
+		 *  - record::deleting: una tupla con stato deleting deve essere rimossa dal database;
+		 *  * Possono essere generate le seguanti tipologie di eccezione:
+		 * - key_empty : se ad una colonna chiave, o che compone la chiave, è associato un valore nullo.
+		 * - column_not_exists : se una delle corrispondenze colonna-valore in valuesMap non è valida, cioè la colonna non esiste in columnsMap;
+		 * - data_exception : viene generata una eccezione di tipo derivato da data_exception (vedi header 'exception.hpp') quando la corrispondenza colonna-valore non è
+		 * 					  valida a causa di un errore dovuto ad un valore non compatibile con il tipo della colonna.
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *				  i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
+		 */
+		unsigned long insert (std::unordered_map<std::string, std::string>& valuesMap, enum record::state _state) throw (basic_exception&)
+			{return __storage->insert(valuesMap, __columnsMap, _state);}
+
+		/* La funzione update consente di marcare i valori di un record affinchè siano aggiornati correttamente dal database remoto. Prende i seguenti parametri:
+		 * consente di creare una tupla in modo corretto, inserendo opportunamente i dati. I paramentri sono:
+		 * 	- valueMap : mappa il cui primo campo è il nome della colonna in cui inserire il valore contenuto nel secondo campo. Se non esiste nessuna colonna con il nome
+		 * 				 specificato, viene generata una eccezione di tipo column_not_exists, derivata da access_exception. Se uno dei valori contenuti nel secondo campo
+		 * 				 non fosse valido per il tipo di colonna al quale deve corrispondere, viene generata una eccezione derivata da data_exception. Vedi l'header
+		 * 				 sqlType.hpp per i dettagli.
+		 * 	- columnsMap : mappa delle colonne che compongono una tabella. Questo parametro viene utilizzato per la validazione dei valori contenuti in valueMap.
+		 * 	Quando si aggiorna un oggetto record possono essere generate le seguenti tipologie di eccezione:
+		 *  - record_not_exists : se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico;
+		 *  - column_not_exists : se una delle corrispondenze colonna-valore in valuesMap non è valida, cioè la colonna non esiste in columnsMap;
+		 *  - data_exception : viene generata una eccezione di tipo derivato da data_exception (vedi header 'exception.hpp') quando la corrispondenza colonna-valore non è
+		 * 					  valida a causa di un errore dovuto ad un valore non compatibile con il tipo della colonna.
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *		i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
+		 */
+		void update (unsigned long ID, std::unordered_map<std::string, std::string>& valuesMap) throw (basic_exception&)
+			{__storage->update(ID, valuesMap, __columnsMap);}
+
+		/* La funzione cancel marca un record affinchè sia rimosso dal database remoto all'atto del commit.
+		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
+		 * parametro ID specifico
+		 */
+		void cancel (unsigned long ID) throw (storage_exception&)
+			{__storage->cancel(ID);}
+
+		/* La funzione erase rimuove un record dal gestore.
+		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
+		 * parametro ID specifico
+		 */
+		void erase (unsigned long ID) throw (storage_exception&)
+			{__storage->erase(ID);}
+
+		/* La funzione state restituisce lo stato di un record.
+		 * Lo stato del record può essere:
+		 *  - record::empty : una tupla viene creata emty quando bisogna, ad esempio, leggerla da file oppure da memoria. Costruire una tupla vuota non ha molto senso se non
+		 * 					  in questo contesto;
+		 *  - record::loaded : una tupla DEVE essere creata loaded nel caso in cui viene caricata dal database gestito;
+		 *  - record::inserting : una tupla viene creata inserting quando i dati che contiene devono essere inseriti nel database remoto;
+		 *  - record::updating : una tupla con stato updating è una tupla, già esistente nel database, i cui valori devono essere aggiornati
+		 *  - record::deleting: una tupla con stato deleting deve essere rimossa dal database;
+		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
+		 * parametro ID specifico
+		 */
+		enum record::state state (unsigned long ID) const throw (storage_exception&)
+			{return __storage->state(ID);}
+
+		/* La funzione visible restituisce true se i valori del record sono 'visibili' ossia se ha senso che siano visibili in una interfaccia. Potrebbe essere privo di
+		 * senso visualizzare i valori di un record che sta per essere cancellato...
+		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
+		 * parametro ID specifico
+		 */
+		bool visible (unsigned long ID)	const throw (storage_exception&)
+			{return __storage->visible(ID);}
+
+		/* La funzione current restituisce un oggetto unordered_map il cui primo campo contiene il nome di una colonna mentre il secondo campo contiene il corrispettivo
+		 * valore memorizzato dalla tupla.
+		 * La funzione old restituisce un oggetto unordered_map il cui primo campo contiene il nome di una colonna mentre il secondo campo contiene il corrispettivo
+		 * valore precedentemente memorizzato dalla tupla.
+		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
+		 * parametro ID specifico
+		 */
+		std::unique_ptr<std::unordered_map<std::string, std::string>> current(unsigned long ID) const throw (storage_exception&)
+			{return __storage->current(ID);}
+		std::unique_ptr<std::unordered_map<std::string, std::string>> old(unsigned long ID) const throw (storage_exception&)
+			{return __storage->old(ID);}
+
+		/* La funzione to_html genera una pagina html molto minimalista, contenente tutte le informazioni gestite dall'oggetto table, organizzate per righe e per colonne.
+		 * Può generare una eccezione di tipo 'file_creation' nel caso in cui non sia possibile creare il file 'fileName'.
+		 */
+		void to_html(std::string fileName, bool print_row = true, std::string bgcolor="#9cdef9") const throw (storage_exception&);
 private:
 		std::string									__tableName;			/*	nome della tabella		*/
 		std::string									__storageDirectory;		/*	percorso della cartella contenente il file dove sono memorizzate tutte le tuple della tabella	*/
@@ -179,6 +298,11 @@ private:
 		 */
 		std::unordered_map<std::string, column>::const_iterator get_iterator(std::string columnName) const throw (column_not_exists&);
 		std::unordered_map<std::string, column>::iterator get_iterator(std::string columnName) throw (column_not_exists&);
+
+		/*
+	     */
+	    std::unique_ptr<storage> __storage;
+
 };
 };
 #endif

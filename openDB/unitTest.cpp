@@ -22,18 +22,19 @@ void print_list(const list<string>& _list);
 
 int main () {
 	try {
-		unordered_map<string, openDB::column> columnMap;
-		columnMap.emplace("tipo_smallint", openDB::column("tipo_smallint", new openDB::sqlType::smallint));
-		columnMap.emplace("tipo_integer", openDB::column("tipo_integer", new openDB::sqlType::integer));
-		columnMap.emplace("tipo_bigint", openDB::column("tipo_bigint", new openDB::sqlType::bigint));
-		columnMap.emplace("tipo_real", openDB::column("tipo_real", new openDB::sqlType::real));
-		columnMap.emplace("tipo_double", openDB::column("tipo_double", new openDB::sqlType::double_precision));
-		columnMap.emplace("tipo_numeric", openDB::column("tipo_numeric", new openDB::sqlType::numeric(10,2)));
-		columnMap.emplace("tipo_date", openDB::column("tipo_date", new openDB::sqlType::date));
-		columnMap.emplace("tipo_time", openDB::column("tipo_time", new openDB::sqlType::time));
-		columnMap.emplace("tipo_varchar", openDB::column("tipo_varchar", new openDB::sqlType::varchar(15)));
-		columnMap.emplace("tipo_character", openDB::column("tipo_character", new openDB::sqlType::character(15), true));
-		columnMap.emplace("tipo_boolean", openDB::column("tipo_boolean", new openDB::sqlType::boolean));
+		openDB::table _table("tabella", "/home/ssaa/");
+
+		_table.add_column("tipo_smallint", new openDB::sqlType::smallint);
+		_table.add_column("tipo_integer", new openDB::sqlType::integer);
+		_table.add_column("tipo_bigint", new openDB::sqlType::bigint);
+		_table.add_column("tipo_real", new openDB::sqlType::real);
+		_table.add_column("tipo_double", new openDB::sqlType::double_precision);
+		_table.add_column("tipo_numeric", new openDB::sqlType::numeric(10,2));
+		_table.add_column("tipo_date", new openDB::sqlType::date);
+		_table.add_column("tipo_time", new openDB::sqlType::time);
+		_table.add_column("tipo_varchar", new openDB::sqlType::varchar(15));
+		_table.add_column("tipo_character", new openDB::sqlType::character(15), true);
+		_table.add_column("tipo_boolean", new openDB::sqlType::boolean);
 
 		unordered_map<string, string> valueMap1;
 		valueMap1.emplace("tipo_smallint", "1");
@@ -90,30 +91,29 @@ int main () {
 		valueMap4.emplace("tipo_boolean", "true");
 
 
-		openDB::file_storage _storage("prova.txt");
-//		openDB::record _record(valueMap1, columnMap, openDB::record::loaded);
 
-		unsigned long key1 = _storage.insert(valueMap1, columnMap, openDB::record::loaded);
-		unsigned long key2 = _storage.insert(valueMap2, columnMap, openDB::record::loaded);
-		unsigned long key3 = _storage.insert(valueMap3, columnMap, openDB::record::loaded);
-		unsigned long key4 = _storage.insert(valueMap4, columnMap, openDB::record::loaded);
+		unsigned long key1 = _table.insert(valueMap1, openDB::record::loaded);
+		unsigned long key2 = _table.insert(valueMap2, openDB::record::loaded);
+		unsigned long key3 = _table.insert(valueMap3, openDB::record::loaded);
+		unsigned long key4 = _table.insert(valueMap4, openDB::record::loaded);
 
 		cout <<"key1 = " <<key1 <<endl;
 		cout <<"key2 = " <<key2 <<endl;
 		cout <<"key3 = " <<key3 <<endl;
 		cout <<"key4 = " <<key4 <<endl;
 
-		_storage.erase(key2);
-		_storage.update(key3, valueMap2, columnMap);
+		_table.cancel(key2);
+		_table.update(key3, valueMap2);
 
-		unique_ptr<list<unsigned long>> key_ptr = _storage.internalID();
+		unique_ptr<list<unsigned long>> key_ptr = _table.internalID();
 		for (list<unsigned long>::const_iterator key_it = key_ptr->begin(); key_it != key_ptr->end(); key_it++) {
 			cout <<*key_it <<endl;
-			unique_ptr<unordered_map<std::string, std::string>> key_value = _storage.current(*key_it);
+			unique_ptr<unordered_map<std::string, std::string>> key_value = _table.current(*key_it);
 			for (unordered_map<std::string, std::string>::const_iterator key_value_it = key_value->begin(); key_value_it != key_value->end(); key_value_it++)
 				cout <<"\t\t" <<key_value_it->first <<"=" <<key_value_it->second <<endl;
 		}
 
+		_table.to_html("prova.html");
 
 	}
 	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}
