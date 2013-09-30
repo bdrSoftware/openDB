@@ -38,9 +38,9 @@ std::string boolean::prepare_value(std::string value) const throw () {
 			_true = true;
 		else i++;
 	if (_true)
-		return "TRUE";
+		return "true";
 	else
-		return "FALSE";
+		return "false";
 }
 
 
@@ -125,8 +125,7 @@ void time::validate_value(std::string value) const throw(data_exception&) {
 }
 
 std::string time::prepare_value(std::string value) const throw () {
-	time_integer _time = convert(value);
-	return std::to_string(_time.hour) + ":" + std::to_string(_time.minute) + (_time.second == 0 ? "00" : std::to_string(_time.second));
+	return "'" + value + "'";
 }
 
 time::time_integer time::convert (std::string __value) const throw (data_exception&) {

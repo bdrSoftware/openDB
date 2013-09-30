@@ -96,7 +96,7 @@ std::string schema::insert_sql(std::string tableName, unsigned long ID) const th
 			sql_values += it->second.get_column(value_it->first).prepare_value(value_it -> second);
 		}
 
-		std::string sql_command = "insert into " + __schemaName + "." + tableName + "(" + sql_column + ") values (" + sql_values + ")";
+		std::string sql_command = "insert into " + __schemaName + "." + tableName + " (" + sql_column + ") values (" + sql_values + ")";
 		return sql_command;
 	}
 	else
@@ -113,12 +113,12 @@ std::string schema::update_sql(std::string tableName, unsigned long ID) const th
 			if (it->second.get_column(value_it->first).is_key()) {
 				if (sql_where != "")
 					sql_where += " and ";
-				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+				sql_where += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}
 			else {
 				if (sql_value != "")
 					sql_value += ", ";
-				sql_value += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+				sql_value += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}
 		}
 
@@ -127,7 +127,7 @@ std::string schema::update_sql(std::string tableName, unsigned long ID) const th
 			for (std::unordered_map<std::string, std::string>::const_iterator value_it = old_value_map_ptr->begin(); value_it != old_value_map_ptr->end(); value_it++) {
 				if (sql_where != "")
 					sql_where += " and ";
-				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+				sql_where += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}
 		}
 
@@ -147,7 +147,7 @@ std::string schema::delete_sql(std::string tableName, unsigned long ID) const th
 			if (it->second.get_column(value_it->first).is_key()) {
 				if (sql_where != "")
 					sql_where += " and ";
-				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+				sql_where += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}
 
 		if (sql_where == "") {
@@ -155,11 +155,11 @@ std::string schema::delete_sql(std::string tableName, unsigned long ID) const th
 			for (std::unordered_map<std::string, std::string>::const_iterator value_it = old_value_map_ptr->begin(); value_it != old_value_map_ptr->end(); value_it++) {
 				if (sql_where != "")
 					sql_where += " and ";
-				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+				sql_where += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}
 		}
 
-		std::string sql_command = "update " + __schemaName + "." + tableName + " where " + sql_where;;
+		std::string sql_command = "delete from " + __schemaName + "." + tableName + " where " + sql_where;;
 		return sql_command;
 	}
 	else

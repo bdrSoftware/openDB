@@ -22,14 +22,16 @@ void print_list(const list<string>& _list);
 
 int main () {
 	try {
-		openDB::table _table("tabella", "/home/ssaa/");
+		openDB::schema _schema("schema", "/home/ssaa/");
+		_schema.add_table("tabella");
+		openDB::table& _table = _schema.get_table("tabella");
 
-		_table.add_column("tipo_smallint", new openDB::sqlType::smallint);
-		_table.add_column("tipo_integer", new openDB::sqlType::integer);
-		_table.add_column("tipo_bigint", new openDB::sqlType::bigint);
-		_table.add_column("tipo_real", new openDB::sqlType::real);
-		_table.add_column("tipo_double", new openDB::sqlType::double_precision);
-		_table.add_column("tipo_numeric", new openDB::sqlType::numeric(10,2));
+//		_table.add_column("tipo_smallint", new openDB::sqlType::smallint);
+//		_table.add_column("tipo_integer", new openDB::sqlType::integer);
+//		_table.add_column("tipo_bigint", new openDB::sqlType::bigint);
+//		_table.add_column("tipo_real", new openDB::sqlType::real);
+//		_table.add_column("tipo_double", new openDB::sqlType::double_precision);
+//		_table.add_column("tipo_numeric", new openDB::sqlType::numeric(10,2));
 		_table.add_column("tipo_date", new openDB::sqlType::date);
 		_table.add_column("tipo_time", new openDB::sqlType::time);
 		_table.add_column("tipo_varchar", new openDB::sqlType::varchar(15));
@@ -37,12 +39,12 @@ int main () {
 		_table.add_column("tipo_boolean", new openDB::sqlType::boolean);
 
 		unordered_map<string, string> valueMap1;
-		valueMap1.emplace("tipo_smallint", "1");
-		valueMap1.emplace("tipo_integer", "1");
-		valueMap1.emplace("tipo_bigint", "1");
-		valueMap1.emplace("tipo_real", "1");
-		valueMap1.emplace("tipo_double", "1");
-		valueMap1.emplace("tipo_numeric", "1");
+//		valueMap1.emplace("tipo_smallint", "1");
+//		valueMap1.emplace("tipo_integer", "1");
+//		valueMap1.emplace("tipo_bigint", "1");
+//		valueMap1.emplace("tipo_real", "1");
+//		valueMap1.emplace("tipo_double", "1");
+//		valueMap1.emplace("tipo_numeric", "1");
 		valueMap1.emplace("tipo_date", "1/1/2001");
 		valueMap1.emplace("tipo_time", "11:11:11");
 		valueMap1.emplace("tipo_varchar", "uno");
@@ -51,12 +53,12 @@ int main () {
 
 
 		unordered_map<string, string> valueMap2;
-		valueMap2.emplace("tipo_smallint", "2");
-		valueMap2.emplace("tipo_integer", "2");
-		valueMap2.emplace("tipo_bigint", "2");
-		valueMap2.emplace("tipo_real", "2");
-		valueMap2.emplace("tipo_double", "2");
-		valueMap2.emplace("tipo_numeric", "2");
+//		valueMap2.emplace("tipo_smallint", "2");
+//		valueMap2.emplace("tipo_integer", "2");
+//		valueMap2.emplace("tipo_bigint", "2");
+//		valueMap2.emplace("tipo_real", "2");
+//		valueMap2.emplace("tipo_double", "2");
+//		valueMap2.emplace("tipo_numeric", "2");
 		valueMap2.emplace("tipo_date", "22/02/2002");
 		valueMap2.emplace("tipo_time", "22:22:22");
 		valueMap2.emplace("tipo_varchar", "due");
@@ -64,12 +66,12 @@ int main () {
 		valueMap2.emplace("tipo_boolean", "true");
 
 		unordered_map<string, string> valueMap3;
-		valueMap3.emplace("tipo_smallint", "3");
-		valueMap3.emplace("tipo_integer", "3");
-		valueMap3.emplace("tipo_bigint", "3");
-		valueMap3.emplace("tipo_real", "3");
-		valueMap3.emplace("tipo_double", "3");
-		valueMap3.emplace("tipo_numeric", "3");
+//		valueMap3.emplace("tipo_smallint", "3");
+//		valueMap3.emplace("tipo_integer", "3");
+//		valueMap3.emplace("tipo_bigint", "3");
+//		valueMap3.emplace("tipo_real", "3");
+//		valueMap3.emplace("tipo_double", "3");
+//		valueMap3.emplace("tipo_numeric", "3");
 		valueMap3.emplace("tipo_date", "3/03/2003");
 		valueMap3.emplace("tipo_time", "03:03:03");
 		valueMap3.emplace("tipo_varchar", "tre");
@@ -78,12 +80,12 @@ int main () {
 
 
 		unordered_map<string, string> valueMap4;
-		valueMap4.emplace("tipo_smallint", "4");
-		valueMap4.emplace("tipo_integer", "4");
-		valueMap4.emplace("tipo_bigint", "4");
-		valueMap4.emplace("tipo_real", "4");
-		valueMap4.emplace("tipo_double", "4");
-		valueMap4.emplace("tipo_numeric", "4");
+//		valueMap4.emplace("tipo_smallint", "4");
+//		valueMap4.emplace("tipo_integer", "4");
+//		valueMap4.emplace("tipo_bigint", "4");
+//		valueMap4.emplace("tipo_real", "4");
+//		valueMap4.emplace("tipo_double", "4");
+//		valueMap4.emplace("tipo_numeric", "4");
 		valueMap4.emplace("tipo_date", "4/4/2004");
 		valueMap4.emplace("tipo_time", "4:4:40");
 		valueMap4.emplace("tipo_varchar", "quattro");
@@ -115,7 +117,9 @@ int main () {
 
 		_table.to_html("prova.html");
 
-
+		cout <<_schema.insert_sql("tabella", key1) <<endl
+		<<_schema.update_sql("tabella", key3) <<endl
+		<<_schema.delete_sql("tabella", key2) <<endl;
 
 	}
 	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}
