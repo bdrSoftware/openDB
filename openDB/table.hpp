@@ -96,6 +96,11 @@ public:
 		 */
 		std::unique_ptr<std::list<std::string>> columns_name (bool attach_table_name = false) const throw ();
 
+		/* La funzione Key_column_name restituisce un oggetto unique_ptr contenente il puntatore ad un oggetto list<string> contenente i nomi delle colonne che compongono
+		 * la chiave primaria per l'ogetto table considerato.
+		 */
+		std::unique_ptr<std::list<std::string>> key_columns_name (bool attach_table_name = false) const throw ();
+
 		/* La funzione find_column restituisce true se una colonna con lo stesso nome di quella indicata compone la struttura della tabella. Restituisce false altrimenti.
 		 */
 		bool find_column(std::string columnName) const throw ()
@@ -279,6 +284,7 @@ public:
 		 */
 		void to_html(std::string fileName, bool print_row = true, std::string bgcolor="#9cdef9") const throw (storage_exception&);
 private:
+
 		std::string									__tableName;			/*	nome della tabella		*/
 		std::string									__storageDirectory;		/*	percorso della cartella contenente il file dove sono memorizzate tutte le tuple della tabella	*/
 		bool										__managesResult;		/*	se la tabella gestisce il risultato di esecuzione di una query, questo attributo è true	*/

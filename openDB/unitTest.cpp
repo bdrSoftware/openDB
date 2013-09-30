@@ -92,7 +92,7 @@ int main () {
 
 
 
-		unsigned long key1 = _table.insert(valueMap1, openDB::record::loaded);
+		unsigned long key1 = _table.insert(valueMap1, openDB::record::inserting);
 		unsigned long key2 = _table.insert(valueMap2, openDB::record::loaded);
 		unsigned long key3 = _table.insert(valueMap3, openDB::record::loaded);
 		unsigned long key4 = _table.insert(valueMap4, openDB::record::loaded);
@@ -114,6 +114,8 @@ int main () {
 		}
 
 		_table.to_html("prova.html");
+
+
 
 	}
 	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}

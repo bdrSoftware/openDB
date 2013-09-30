@@ -24,7 +24,7 @@ using namespace openDB;
 schema::schema (std::string schemaName, std::string storageDirectory) throw (basic_exception&) {
 
 	(schemaName != "" ? __schemaName = schemaName : throw access_exception("Error creating schema: you can not create a schema with no name. Check the 'schemaName' paramether."));
-	
+
 	#if !defined __WINDOWS_COMPILING_
 		(storageDirectory != "" ? __storageDirectory = storageDirectory + __schemaName + "/" : throw storage_exception("Error creating schema '" + schemaName + "': you must specify where to store this schema. Check the 'storageDirectory' paramether."));
 		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux	*/
@@ -59,3 +59,110 @@ std::unordered_map<std::string, table>::iterator schema::get_iterator(std::strin
 	else
 		throw table_not_exists("'" + tableName + "' doesn't exists in schema '" + __schemaName + "'");
 }
+
+std::unique_ptr<std::list<std::string>> schema::commit() const throw () {
+	std::unique_ptr<std::list <std::string>> list_ptr(new std::list<std::string>);
+	for (std::unordered_map <std::string, table>::const_iterator table_it = __tablesMap.begin(); table_it != __tablesMap.end(); table_it++) {
+		std::unique_ptr<std::list<unsigned long>> ID_list = table_it->second.internalID();
+		for(std::list<unsigned long>::const_iterator ID_it = ID_list->begin(); ID_it !=  ID_list->end(); ID_it++)
+			switch(table_it->second.state(*ID_it)) {
+			case record::inserting:
+				list_ptr->push_back(insert_sql(table_it->first, *ID_it));
+				break;
+			case record::updating:
+				list_ptr->push_back(update_sql(table_it->first, *ID_it));
+				break;
+			case record::deleting:
+				list_ptr->push_back(delete_sql(table_it->first, *ID_it));
+				break;
+			default: break;
+			}
+	}
+	return list_ptr;
+}
+
+std::string schema::insert_sql(std::string tableName, unsigned long ID) const throw (basic_exception&) {
+	std::unordered_map <std::string, table>::const_iterator it = __tablesMap.find(tableName);
+	if (it != __tablesMap.end()) {
+		std::string sql_column = "";
+		std::string sql_values = "";
+		std::unique_ptr<std::unordered_map<std::string, std::string>> value_map_ptr = it->second.current(ID);
+		for (std::unordered_map<std::string, std::string>::const_iterator value_it = value_map_ptr->begin(); value_it != value_map_ptr->end(); value_it++) {
+			if (sql_column != "")
+				sql_column+= ", ";
+			sql_column += value_it->first;
+			if (sql_values != "")
+				sql_values += ", ";
+			sql_values += it->second.get_column(value_it->first).prepare_value(value_it -> second);
+		}
+
+		std::string sql_command = "insert into " + __schemaName + "." + tableName + "(" + sql_column + ") values (" + sql_values + ")";
+		return sql_command;
+	}
+	else
+		throw table_not_exists("'" + tableName + "' doesn't exists in schema '" + __schemaName + "'");
+}
+
+std::string schema::update_sql(std::string tableName, unsigned long ID) const throw (basic_exception&) {
+	std::unordered_map <std::string, table>::const_iterator it = __tablesMap.find(tableName);
+	if (it != __tablesMap.end()) {
+		std::string sql_value = "";
+		std::string sql_where = "";
+		std::unique_ptr<std::unordered_map<std::string, std::string>> value_map_ptr = it->second.current(ID);
+		for (std::unordered_map<std::string, std::string>::const_iterator value_it = value_map_ptr->begin(); value_it != value_map_ptr->end(); value_it++) {
+			if (it->second.get_column(value_it->first).is_key()) {
+				if (sql_where != "")
+					sql_where += " and ";
+				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+			}
+			else {
+				if (sql_value != "")
+					sql_value += ", ";
+				sql_value += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+			}
+		}
+
+		if (sql_where == "") {
+			std::unique_ptr<std::unordered_map<std::string, std::string>> old_value_map_ptr = it->second.old(ID);
+			for (std::unordered_map<std::string, std::string>::const_iterator value_it = old_value_map_ptr->begin(); value_it != old_value_map_ptr->end(); value_it++) {
+				if (sql_where != "")
+					sql_where += " and ";
+				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+			}
+		}
+
+		std::string sql_command = "update " + __schemaName + "." + tableName + " set " + sql_value + " where " + sql_where;
+		return sql_command;
+	}
+	else
+		throw table_not_exists("'" + tableName + "' doesn't exists in schema '" + __schemaName + "'");
+}
+
+std::string schema::delete_sql(std::string tableName, unsigned long ID) const throw (basic_exception&) {
+	std::unordered_map <std::string, table>::const_iterator it = __tablesMap.find(tableName);
+	if (it != __tablesMap.end()) {
+		std::string sql_where = "";
+		std::unique_ptr<std::unordered_map<std::string, std::string>> value_map_ptr = it->second.current(ID);
+		for (std::unordered_map<std::string, std::string>::const_iterator value_it = value_map_ptr->begin(); value_it != value_map_ptr->end(); value_it++)
+			if (it->second.get_column(value_it->first).is_key()) {
+				if (sql_where != "")
+					sql_where += " and ";
+				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+			}
+
+		if (sql_where == "") {
+			std::unique_ptr<std::unordered_map<std::string, std::string>> old_value_map_ptr = it->second.old(ID);
+			for (std::unordered_map<std::string, std::string>::const_iterator value_it = old_value_map_ptr->begin(); value_it != old_value_map_ptr->end(); value_it++) {
+				if (sql_where != "")
+					sql_where += " and ";
+				sql_where += value_it -> second + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+			}
+		}
+
+		std::string sql_command = "update " + __schemaName + "." + tableName + " where " + sql_where;;
+		return sql_command;
+	}
+	else
+		throw table_not_exists("'" + tableName + "' doesn't exists in schema '" + __schemaName + "'");
+}
+

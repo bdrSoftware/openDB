@@ -79,7 +79,14 @@ public :
 			{return get_iterator(tableName)->second;}
 		const table& get_table(std::string tableName) const throw (table_not_exists&)
 			{return get_iterator(tableName)->second;}
-			
+
+		/*
+		 */
+		std::unique_ptr<std::list<std::string>> commit() const throw ();
+		std::string insert_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
+		std::string update_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
+		std::string delete_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
+
 private :
 		std::string 								__schemaName;			/*	nome dello schema. Deve essere univoco all'interno di uno stesso database perchè usato dalle
 																			 * 	funzioni di accesso dell'oggetto database (vedi header database.hpp)

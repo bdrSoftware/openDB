@@ -26,6 +26,16 @@ std::unique_ptr<std::list<std::string>> table::columns_name (bool attach_table_n
 	return list_ptr;
 }
 
+
+std::unique_ptr<std::list<std::string>> table::key_columns_name (bool attach_table_name) const throw () {
+	std::unique_ptr<std::list <std::string>> list_ptr(new std::list<std::string>);
+	for (std::unordered_map <std::string, column>::const_iterator it = __columnsMap.begin(); it != __columnsMap.end(); it++)
+		if (it->second.is_key())
+			(attach_table_name ? list_ptr -> push_back(__tableName + "." + it -> first) : list_ptr -> push_back(it -> first));
+	return list_ptr;
+}
+
+
 void table::to_html (std::string fileName, bool print_row, std::string bgcolor) const throw (storage_exception&) {
 	std::fstream file;
 	file.open(fileName.c_str(), std::ios::out);
