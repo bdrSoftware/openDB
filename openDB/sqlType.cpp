@@ -63,7 +63,7 @@ date::date_integer date::convert (std::string __value) const throw (data_excepti
 
 	if (token->size() != 3)
 		throw invalid_argument("Invalid argument for type 'date': " + __value + " isn't permitted.");
-		
+
 	std::list<std::string>::iterator token_it = token->begin();
 	date_integer _date;
 	try {
@@ -125,7 +125,8 @@ void time::validate_value(std::string value) const throw(data_exception&) {
 }
 
 std::string time::prepare_value(std::string value) const throw () {
-	return "'" + value + "'";
+	time_integer _time= convert(value);
+	return "'" + std::to_string(_time.hour) + ":" + std::to_string(_time.minute) + ":" + (_time.second == 0 ? "00" : std::to_string(_time.second)) + "'";
 }
 
 time::time_integer time::convert (std::string __value) const throw (data_exception&) {
@@ -133,7 +134,7 @@ time::time_integer time::convert (std::string __value) const throw (data_excepti
 
 	if (token->size() != 3 && token->size() != 2)
 		throw invalid_argument("Invalid argument for type 'date': " + __value + " isn't permitted.");
-		
+
 	std::list<std::string>::iterator token_it = token->begin();
 	time_integer _time;
 	try {
