@@ -80,12 +80,12 @@ public :
 		const table& get_table(std::string tableName) const throw (table_not_exists&)
 			{return get_iterator(tableName)->second;}
 
-		/*
+		/* La funzione commit restituisce un puntatore 'intelligente' ad un oggetto lista di stringhe contenente comandi sql relativi alle operazioni di aggiornamento da
+		 * effettuare sul database remoto a fronte delle modifiche apportate localmente ai record gestiti dalle tabelle che compongono l'oggetto schema considerato.
+		 * Ciascuno di questi comandi deve essere inviato al database remoto. Nessuna modifica viene effettuata sui record dopo la generazione dei comandi sql, quindi sa'
+		 * necessario ricaricarli dal database.
 		 */
 		std::unique_ptr<std::list<std::string>> commit() const throw ();
-		std::string insert_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
-		std::string update_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
-		std::string delete_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
 
 private :
 		std::string 								__schemaName;			/*	nome dello schema. Deve essere univoco all'interno di uno stesso database perchè usato dalle
@@ -110,6 +110,23 @@ private :
 		 */
 		std::unordered_map<std::string, table>::const_iterator get_iterator(std::string tableName) const throw (table_not_exists&);
 		std::unordered_map<std::string, table>::iterator get_iterator(std::string tableName) throw (table_not_exists&);
+
+		/* Le funzioni insert_sql, update_sql e delete_sql generano stringhe contenenti comandi sql per, rispettivamente, inserimento, modifica e cancellazione
+		 * delle informazioni relative ad un record, di cui si specifica l'ID, gestito da un oggetto di tipo table, di cui si specifica il nome.
+		 * Queste funzioni prendono, in ingresso, due parametri:
+		 * 	- tableName: è il nome della tabella contenente il record contenente le informazioni da utilizzare per la generazione del comando sql;
+		 *	- ID: id interno del record contenente le informazioni da utilizzare per la generazione del comando sql.
+		 * Queste funzioni possono generare i seguenti tipi di eccezione:
+		 *	- table_not_exists: eccezione di tipo derivato da access_exception, generata se non esiste nessuna tabella il cui nome corrisponda a quello
+		 * 	  specificato dal parametro tableName;
+		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *				  i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
+		*/
+		std::string insert_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
+		std::string update_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
+		std::string delete_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
 
 };	/*	end of schema definition	*/
 };	/*	end of openDB namespace	*/

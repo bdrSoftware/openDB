@@ -69,7 +69,14 @@ public:
 			{return get_iterator(schemaName)->second;}
 		const schema& get_schema(std::string schemaName) const throw (schema_not_exists&)
 			{return get_iterator(schemaName)->second;}
-		
+
+		/* La funzione commit restituisce un puntatore 'intelligente' ad un oggetto lista di stringhe contenente comandi sql relativi alle operazioni di aggiornamento da
+		 * effettuare sul database remoto a fronte delle modifiche apportate localmente ai record gestiti dalle tabelle che compongono gli schemi del database considerato.
+		 * Ciascuno di questi comandi deve essere inviato al database remoto. Nessuna modifica viene effettuata sui record dopo la generazione dei comandi sql, quindi sa'
+		 * necessario ricaricarli dal database.
+		 */
+		std::unique_ptr<std::list<std::string>> commit() const throw ();
+
 private:
 		std::string 								__databaseName;			/*	nome del database.	*/
 		std::string									__storageDirectory;		/*	percorso della cartella contenente altre cartelle e file dove sono memorizzate i contenuti degli

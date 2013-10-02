@@ -232,15 +232,18 @@ public:
 			{__storage->update(ID, valuesMap, __columnsMap);}
 
 		/* La funzione cancel marca un record affinchè sia rimosso dal database remoto all'atto del commit.
-		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
-		 * parametro ID specifico
-		 */
+		 * La funzione può generare una eccezione di tipo :
+		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *		          i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
+ 		 */
 		void cancel (unsigned long ID) throw (storage_exception&)
 			{__storage->cancel(ID);}
 
 		/* La funzione erase rimuove un record dal gestore.
-		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
-		 * parametro ID specifico
+		 * La funzione può generare una eccezione di tipo :
+		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
 		 */
 		void erase (unsigned long ID) throw (storage_exception&)
 			{__storage->erase(ID);}
@@ -253,16 +256,22 @@ public:
 		 *  - record::inserting : una tupla viene creata inserting quando i dati che contiene devono essere inseriti nel database remoto;
 		 *  - record::updating : una tupla con stato updating è una tupla, già esistente nel database, i cui valori devono essere aggiornati
 		 *  - record::deleting: una tupla con stato deleting deve essere rimossa dal database;
-		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
-		 * parametro ID specifico
+		 * La funzione può generare una eccezione di tipo :
+		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *		          i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
 		 */
 		enum record::state state (unsigned long ID) const throw (storage_exception&)
 			{return __storage->state(ID);}
 
 		/* La funzione visible restituisce true se i valori del record sono 'visibili' ossia se ha senso che siano visibili in una interfaccia. Potrebbe essere privo di
 		 * senso visualizzare i valori di un record che sta per essere cancellato...
-		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
-		 * parametro ID specifico
+		 * La funzione può generare una eccezione di tipo :
+		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *		i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
 		 */
 		bool visible (unsigned long ID)	const throw (storage_exception&)
 			{return __storage->visible(ID);}
@@ -271,8 +280,11 @@ public:
 		 * valore memorizzato dalla tupla.
 		 * La funzione old restituisce un oggetto unordered_map il cui primo campo contiene il nome di una colonna mentre il secondo campo contiene il corrispettivo
 		 * valore precedentemente memorizzato dalla tupla.
-		 * La funzione può generare una eccezione di tipo 'record_not_exists' se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel
-		 * parametro ID specifico
+		 * La funzione può generare una eccezione di tipo :
+		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *		i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
 		 */
 		std::unique_ptr<std::unordered_map<std::string, std::string>> current(unsigned long ID) const throw (storage_exception&)
 			{return __storage->current(ID);}
@@ -280,9 +292,19 @@ public:
 			{return __storage->old(ID);}
 
 		/* La funzione to_html genera una pagina html molto minimalista, contenente tutte le informazioni gestite dall'oggetto table, organizzate per righe e per colonne.
-		 * Può generare una eccezione di tipo 'file_creation' nel caso in cui non sia possibile creare il file 'fileName'.
+		 * La funzione prende tre parametri:
+		 * 	- fileName: nome del file di output;
+		 *	- print_row: se true le tabelle verranno evidenziate con un colore di sfondo alternato, in modo da facilitare la lettura;
+		 *	- bgcolor: codice esadecimale del colore di sfondo. se print_row è false, questo parametro viene ignorato. Il codice esadecimane dello sfondo
+		 *		   deve essere preceduto dal carattere '#'. es. "#e6e6e6". 
+		 * La funzione può generare una eccezione di tipo :
+		 *  - file_creation: nel caso non sia possibile creare fileName
+		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
+		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
+		 *		i record;
+		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
 		 */
-		void to_html(std::string fileName, bool print_row = true, std::string bgcolor="#9cdef9") const throw (storage_exception&);
+		void to_html(std::string fileName, bool print_row = true, std::string bgcolor="#e6e6e6") const throw (storage_exception&);
 private:
 
 		std::string									__tableName;			/*	nome della tabella		*/

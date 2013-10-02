@@ -60,3 +60,12 @@ std::unordered_map<std::string, schema>::iterator database::get_iterator(std::st
 	else
 		throw schema_not_exists("'" + schemaName + "' doesn't exists in database '" + __databaseName + "'");
 }
+
+std::unique_ptr<std::list<std::string>> database::commit() const throw () {
+	std::unique_ptr<std::list<std::string>> list_ptr(new std::list<std::string>);
+	for (std::unordered_map<std::string, schema>::const_iterator schema_it = __schemasMap.begin(); schema_it!=__schemasMap.end(); schema_it++) {
+		std::unique_ptr<std::list<std::string>> tmp = schema_it->second.commit();
+		list_ptr->splice(list_ptr->end(), *tmp);
+	}
+	return list_ptr;
+}

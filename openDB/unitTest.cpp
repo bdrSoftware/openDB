@@ -22,7 +22,9 @@ void print_list(const list<string>& _list);
 
 int main () {
 	try {
-		openDB::schema _schema("schema", "/home/ssaa/");
+		openDB::database _database("test");
+		_database.add_schema("schema");
+		openDB::schema& _schema = _database.get_schema("schema");
 		_schema.add_table("tabella");
 		openDB::table& _table = _schema.get_table("tabella");
 
@@ -92,8 +94,6 @@ int main () {
 		valueMap4.emplace("tipo_character", "quattro");
 		valueMap4.emplace("tipo_boolean", "true");
 
-
-
 		unsigned long key1 = _table.insert(valueMap1, openDB::record::inserting);
 		unsigned long key2 = _table.insert(valueMap2, openDB::record::loaded);
 		unsigned long key3 = _table.insert(valueMap3, openDB::record::loaded);
@@ -107,19 +107,19 @@ int main () {
 		_table.cancel(key2);
 		_table.update(key3, valueMap2);
 
-		unique_ptr<list<unsigned long>> key_ptr = _table.internalID();
-		for (list<unsigned long>::const_iterator key_it = key_ptr->begin(); key_it != key_ptr->end(); key_it++) {
-			cout <<*key_it <<endl;
-			unique_ptr<unordered_map<std::string, std::string>> key_value = _table.current(*key_it);
-			for (unordered_map<std::string, std::string>::const_iterator key_value_it = key_value->begin(); key_value_it != key_value->end(); key_value_it++)
-				cout <<"\t\t" <<key_value_it->first <<"=" <<key_value_it->second <<endl;
-		}
+//		unique_ptr<list<unsigned long>> key_ptr = _table.internalID();
+//		for (list<unsigned long>::const_iterator key_it = key_ptr->begin(); key_it != key_ptr->end(); key_it++) {
+//			cout <<*key_it <<endl;
+//			unique_ptr<unordered_map<std::string, std::string>> key_value = _table.current(*key_it);
+//			for (unordered_map<std::string, std::string>::const_iterator key_value_it = key_value->begin(); key_value_it != key_value->end(); key_value_it++)
+//				cout <<"\t\t" <<key_value_it->first <<"=" <<key_value_it->second <<endl;
+//		}
 
 		_table.to_html("prova.html");
 
-		cout <<_schema.insert_sql("tabella", key1) <<endl
-		<<_schema.update_sql("tabella", key3) <<endl
-		<<_schema.delete_sql("tabella", key2) <<endl;
+		unique_ptr<list<string>> commit_list = _database.commit();
+		for (list<string>::const_iterator it = commit_list->begin(); it != commit_list->end(); it++)
+			cout <<*it <<endl;
 
 	}
 	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}

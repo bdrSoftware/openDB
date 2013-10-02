@@ -43,7 +43,7 @@ void table::to_html (std::string fileName, bool print_row, std::string bgcolor) 
 		throw file_creation("Error: '" + fileName + "' can not be created!");
 
 	file<<"<html>" <<std::endl
-	<<"<title>" <<__tableName.c_str() <<"</title>" <<std::endl
+	<<"<title> openDB "  <<__tableName.c_str() <<"</title>" <<std::endl
 	<<"<head> <h3> Table name: <b>" <<__tableName.c_str() << " </h3> </b></head>" <<std::endl
 	<<"<body>" <<std::endl
 	<<"<table border=\"1\">" <<std::endl
