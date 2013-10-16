@@ -10,12 +10,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#include "record.hpp"
-#include "memory_storage.hpp"
-#include "file_storage.hpp"
 #include "database.hpp"
 #include <iostream>
-#include <typeinfo>
 using namespace std;
 
 void print_list(const list<string>& _list);
@@ -24,9 +20,9 @@ int main () {
 	try {
 		openDB::database _database("test");
 		_database.add_schema("schema");
-		openDB::schema& _schema = _database.get_schema("schema");
+		openDB::schema& _schema = _database["schema"];
 		_schema.add_table("tabella");
-		openDB::table& _table = _schema.get_table("tabella");
+		openDB::table& _table = _schema["tabella"];
 
 //		_table.add_column("tipo_smallint", new openDB::sqlType::smallint);
 //		_table.add_column("tipo_integer", new openDB::sqlType::integer);

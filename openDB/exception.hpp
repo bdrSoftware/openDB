@@ -9,8 +9,11 @@
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
+
 #ifndef __OPENDB_EXCEPTION_HEADER__
 #define __OPENDB_EXCEPTION_HEADER__
+
+#include <string>
 
 namespace openDB {
 
@@ -43,6 +46,13 @@ public:
 class storage_exception : public basic_exception {
 public:
 	storage_exception (std::string __message) : basic_exception(__message) {}
+};
+
+/*
+ */
+class remote_exception : public basic_exception {
+public:
+	remote_exception (std::string __message) : basic_exception(__message) {}
 };
 
 /*
@@ -159,6 +169,13 @@ public:
 class io_error : public storage_exception {
 public:
 	io_error (std::string __message) : storage_exception(__message) {}
+};
+
+/*
+ */
+class connection_error : remote_exception {
+public:
+	connection_error (std::string __message) : remote_exception(__message) {}
 };
 };	/* end of openDB namespace */
 

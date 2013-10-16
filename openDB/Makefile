@@ -1,10 +1,12 @@
 CC = g++
 OPZ = -ggdb3 -Wall -Wextra -fPIC -std=c++11
+INCLUDE_LIBPQ = -I/usr/include/postgresql
+
 
 .PHONY: clean rebuild
 
-openDB.a : common.o sqlType.o queryAttribute.o column.o record.o memory_storage.o file_storage.o table.o schema.o database.o
-	ar rcs openDB.a sqlType.o queryAttribute.o column.o common.o record.o memory_storage.o file_storage.o table.o schema.o database.o
+openDB.a : common.o sqlType.o queryAttribute.o column.o record.o memory_storage.o file_storage.o table.o schema.o connection.o database.o
+	ar rcs openDB.a sqlType.o queryAttribute.o column.o common.o record.o memory_storage.o file_storage.o table.o schema.o connection.o database.o
 
 clean :
 	rm -f openDB.a *.o unitTest
@@ -41,6 +43,9 @@ table.o : table.cpp table.hpp
 
 schema.o : schema.cpp schema.hpp
 	$(CC) $(OPZ) -c -o schema.o schema.cpp
+
+connection.o : connection.cpp connection.hpp
+	$(CC) $(OPZ) -c -o connection.o connection.cpp $(INCLUDE_LIBPQ)
 
 database.o : database.cpp database.hpp
 	$(CC) $(OPZ) -c -o database.o database.cpp

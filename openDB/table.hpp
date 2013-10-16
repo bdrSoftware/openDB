@@ -161,10 +161,15 @@ public:
 		 * 		Ambiguous value for type 'date': 05/12/13 is ambiguous.
 		 *
 		 * Nel caso in cui la colonna specifica non esiste, viene generata una eccezione di tipo column_not_exists, derivata da access_exception.
+		 * Gli operatori [] sono perfettamente equivalenti alle funzioni get_column e per loro vale quanto gia' detto precedentemente.
 		 */
 		column& get_column(std::string columnName) throw (column_not_exists&)
 			{return get_iterator(columnName)->second;}
 		const column& get_column(std::string columnName) const throw (column_not_exists&)
+			{return get_iterator(columnName)->second;}
+		column& operator[] (std::string columnName) throw (column_not_exists&)
+			{return get_iterator(columnName)->second;}
+		const column& operator[] (std::string columnName) const throw (column_not_exists&)
 			{return get_iterator(columnName)->second;}
 
 		/* La funzione membro 'internalID' restituisce un oggetto std::list di unsigned long, più precisamente un oggetto unique_ptr contenente un puntatore ad un oggetto

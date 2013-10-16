@@ -64,4 +64,10 @@
   <packagedElement xmi:type="uml:Class" xmi:id="_6BExkCRjEeOz4a2cxMOTBw" name="io_error">
     <generalization xmi:type="uml:Generalization" xmi:id="_CEt34CRkEeOz4a2cxMOTBw" general="_64EoMBh0EeO9KZd_q5jcSg"/>
   </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_MT-a8DZcEeOzE8sk-7Njhg" name="remote_exception">
+    <generalization xmi:type="uml:Generalization" xmi:id="_UeY3oDZcEeOzE8sk-7Njhg" general="_wfzM0Bh0EeO9KZd_q5jcSg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_NuIEwDZcEeOzE8sk-7Njhg" name="connection_error">
+    <generalization xmi:type="uml:Generalization" xmi:id="_XcfngDZcEeOzE8sk-7Njhg" general="_MT-a8DZcEeOzE8sk-7Njhg"/>
+  </packagedElement>
 </uml:Model>

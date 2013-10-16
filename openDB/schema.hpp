@@ -79,6 +79,10 @@ public :
 			{return get_iterator(tableName)->second;}
 		const table& get_table(std::string tableName) const throw (table_not_exists&)
 			{return get_iterator(tableName)->second;}
+		table& operator[] (std::string tableName) throw (table_not_exists&)
+			{return get_iterator(tableName)->second;}
+		const table& operator[] (std::string tableName) const throw (table_not_exists&)
+			{return get_iterator(tableName)->second;}
 
 		/* La funzione commit restituisce un puntatore 'intelligente' ad un oggetto lista di stringhe contenente comandi sql relativi alle operazioni di aggiornamento da
 		 * effettuare sul database remoto a fronte delle modifiche apportate localmente ai record gestiti dalle tabelle che compongono l'oggetto schema considerato.
