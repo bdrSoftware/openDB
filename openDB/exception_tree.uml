@@ -70,4 +70,7 @@
   <packagedElement xmi:type="uml:Class" xmi:id="_NuIEwDZcEeOzE8sk-7Njhg" name="connection_error">
     <generalization xmi:type="uml:Generalization" xmi:id="_XcfngDZcEeOzE8sk-7Njhg" general="_MT-a8DZcEeOzE8sk-7Njhg"/>
   </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_acHTUDapEeOuONErtXyEpg" name="query_execution">
+    <generalization xmi:type="uml:Generalization" xmi:id="_fV_zYDapEeOuONErtXyEpg" general="_MT-a8DZcEeOzE8sk-7Njhg"/>
+  </packagedElement>
 </uml:Model>

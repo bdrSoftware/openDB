@@ -36,6 +36,7 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.974697591" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/include/c++"/>
+									<listOptionValue builtIn="false" value="/usr/include/postgresql/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.388652711" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -59,11 +60,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.so.debug.976291993.1304295333" name="column.cpp" rcbsApplicability="disable" resourcePath="column.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug.1513959521.1679558916">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug.1513959521.1679558916" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.so.debug.1513959521">
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1468538647" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-						</tool>
-					</fileInfo>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
@@ -133,7 +129,14 @@
 		<project id="openDB.cdt.managedbuild.target.gnu.so.744747680" name="Shared Library" projectType="cdt.managedbuild.target.gnu.so"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/openDB"/>
+		</configuration>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/openDB"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.so.debug.976291993;cdt.managedbuild.config.gnu.so.debug.976291993.;cdt.managedbuild.tool.gnu.c.compiler.so.debug.1937905462;cdt.managedbuild.tool.gnu.c.compiler.input.1386200600">
@@ -155,4 +158,5 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

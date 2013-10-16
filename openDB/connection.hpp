@@ -14,12 +14,16 @@
 #ifndef __OPENDB_CONNECTION_HEADER__
 #define __OPENDB_CONNECTION_HEADER__
 
-#include "exception.hpp"
-#include "libpq-fe.h"
+#include "result.hpp"
 #include <string>
 
 namespace openDB {
-/*
+/* La classe connection gestisce la connessione con un database remoto. Essa possiede i seguenti attributi:
+ * 	- host: indirizzo o nome dell'host che ospita il server postgres che gestisce il database;
+ * 	- post: porta da utilizzare per la connessione, di default è 5432;
+ * 	- dbname : è il nome del database al quale ci si vuole collegare;
+ * 	- user : è il nome dell'utente che vuole effettuare la connessione;
+ * 	- passwd: è la password associata a 'user' con il quale il DBMS remoto identifica l'utente.
  */
 class connection {
 public:
@@ -54,16 +58,43 @@ public:
 	std::string passwd () const throw ()
 		{return __passwd;}
 
-	/*
+	/* Le funzioni seguenti gestiscono la connessione al DBMS.
+	 * La funzione connect() avvia un tentativo di connessione al server postgres. Tale tentativo è bloccante per il thread che
+	 * richiama la funzione, ciò vuo, dire che esso rimane in attesa del termine del tentativo. Qualora il tentativo di connessione
+	 * fallisca, viene generata una eccezione di tipo connection_error, derivata da remote_exception, contenente un messaggio che
+	 * illustra le cause del fallimento della connessione.
+	 *
+	 * La funzione disconnect() termina una connessione, liberando la memoria occupata e rilasciando le risorse necessarie a
+	 * mantenerla attiva.
+	 *
+	 * La funzione reset() azzera un canale di comunicazione, ossia una connessione precedentemente attiva che per una qualche
+	 * ragione è stata persa.
 	 */
 	void connect () throw (connection_error&);
 	void disconnect () throw ();
 	void reset () throw ();
+
+	/* La funzione exec query permette l'esecuzione di un comando sql su un database remoto al quale sia stata effettuala la
+	 * connessione. La chiamata a questa funzione risulta bloccante per il thread chiamante. Il risultato dell'esecuzione della
+	 * query è un oggetto di tipo 'result' (vedi header 'result.hpp') per i dettagli.
+	 * Può generare una eccezione di tipo 'connection_error' nel caso in cui si tenti l'esecuzione di una query su una connessione
+	 * non attiva o non valida, oppure 'query_execution' nel caso in cui l'esecuzione della query non vada a buon fine.
+	 */
+	result& exec_query(std::string command) const throw (remote_exception&);
+
+	/* L'operatore () restituisce il puntatore alla struttura che materialmente gestisce la connessione con il server postgres.
+	 * Per ulteriori dettagli bisogna consultare il manuale di postgres, in particolare la sezione sulla libreria C che gestisce
+	 * la comunicazione con il server.
+	 */
 	PGconn* operator() () const throw ()
 		{return __pgconnection;}
 
 private:
-	/*
+	/* 	- host: indirizzo o nome dell'host che ospita il server postgres che gestisce il database;
+	 * 	- post: porta da utilizzare per la connessione, di default è 5432;
+	 * 	- dbname : è il nome del database al quale ci si vuole collegare;
+	 * 	- user : è il nome dell'utente che vuole effettuare la connessione;
+	 * 	- passwd: è la password associata a 'user' con il quale il DBMS remoto identifica l'utente.
 	 */
 	std::string __host;
 	std::string __port;

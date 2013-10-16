@@ -38,4 +38,21 @@ void connection::reset () throw () {
 }
 
 
+result& connection::exec_query(std::string command) const throw (remote_exception&) {
+	if (__pgconnection == 0)
+		throw connection_error("Connection not established!");
+
+	PGresult* pgresult = PQexec(__pgconnection, command.c_str());
+	if (pgresult != 0) {
+		if (PQresultStatus(pgresult) ==  PGRES_COMMAND_OK || PQresultStatus(pgresult) == PGRES_TUPLES_OK) {
+			result _result(pgresult);
+			return _result;
+		}
+		else
+			throw query_execution(std::string(PQresStatus(PQresultStatus(pgresult))) + ": " + std::string(PQresultErrorMessage(pgresult)));
+	}
+	else
+		throw query_execution("Can not execute this query: memory is insufficient!");
+}
+
 

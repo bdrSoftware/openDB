@@ -744,6 +744,38 @@
     <element xmi:type="uml:Class" href="exception_tree.uml#_NuIEwDZcEeOzE8sk-7Njhg"/>
     <layoutConstraint xmi:type="notation:Bounds" xmi:id="_Nua_sTZcEeOzE8sk-7Njhg" x="1812" y="328"/>
   </children>
+  <children xmi:type="notation:Shape" xmi:id="_aeRPcDapEeOuONErtXyEpg" type="2008" fontName="Cantarell" fontHeight="8" lineColor="0">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_aeVg4DapEeOuONErtXyEpg" source="ShadowFigure">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_aeWH8DapEeOuONErtXyEpg" key="ShadowFigure_Value" value="false"/>
+    </eAnnotations>
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_aeWH8TapEeOuONErtXyEpg" source="displayNameLabelIcon">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_aeWH8japEeOuONErtXyEpg" key="displayNameLabelIcon_value" value="false"/>
+    </eAnnotations>
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_aeWvADapEeOuONErtXyEpg" source="QualifiedName">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_aeWvATapEeOuONErtXyEpg" key="QualifiedNameDepth" value="1000"/>
+    </eAnnotations>
+    <children xmi:type="notation:DecorationNode" xmi:id="_aeWvAjapEeOuONErtXyEpg" type="5029"/>
+    <children xmi:type="notation:BasicCompartment" xmi:id="_aeXWEDapEeOuONErtXyEpg" type="7017">
+      <styles xmi:type="notation:TitleStyle" xmi:id="_aeXWETapEeOuONErtXyEpg"/>
+      <styles xmi:type="notation:SortingStyle" xmi:id="_aeXWEjapEeOuONErtXyEpg"/>
+      <styles xmi:type="notation:FilteringStyle" xmi:id="_aeXWEzapEeOuONErtXyEpg"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_aeXWFDapEeOuONErtXyEpg"/>
+    </children>
+    <children xmi:type="notation:BasicCompartment" xmi:id="_aeXWFTapEeOuONErtXyEpg" type="7018">
+      <styles xmi:type="notation:TitleStyle" xmi:id="_aeXWFjapEeOuONErtXyEpg"/>
+      <styles xmi:type="notation:SortingStyle" xmi:id="_aeXWFzapEeOuONErtXyEpg"/>
+      <styles xmi:type="notation:FilteringStyle" xmi:id="_aeXWGDapEeOuONErtXyEpg"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_aeXWGTapEeOuONErtXyEpg"/>
+    </children>
+    <children xmi:type="notation:BasicCompartment" xmi:id="_aeX9IDapEeOuONErtXyEpg" type="7019">
+      <styles xmi:type="notation:TitleStyle" xmi:id="_aeX9ITapEeOuONErtXyEpg"/>
+      <styles xmi:type="notation:SortingStyle" xmi:id="_aeX9IjapEeOuONErtXyEpg"/>
+      <styles xmi:type="notation:FilteringStyle" xmi:id="_aeX9IzapEeOuONErtXyEpg"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_aeX9JDapEeOuONErtXyEpg"/>
+    </children>
+    <element xmi:type="uml:Class" href="exception_tree.uml#_acHTUDapEeOuONErtXyEpg"/>
+    <layoutConstraint xmi:type="notation:Bounds" xmi:id="_aeRPcTapEeOuONErtXyEpg" x="1980" y="235"/>
+  </children>
   <styles xmi:type="notation:DiagramStyle" xmi:id="_srUOkRh0EeO9KZd_q5jcSg"/>
   <element xmi:type="uml:Model" href="exception_tree.uml#_spwIUBh0EeO9KZd_q5jcSg"/>
   <edges xmi:type="notation:Connector" xmi:id="_vjEpYBh1EeO9KZd_q5jcSg" type="4002" source="_3HJ7UBh0EeO9KZd_q5jcSg" target="_wiWxkBh0EeO9KZd_q5jcSg" routing="Rectilinear" avoidObstructions="true" lineColor="0">
@@ -934,5 +966,14 @@
     <styles xmi:type="notation:FontStyle" xmi:id="_XcwGMTZcEeOzE8sk-7Njhg" fontName="Cantarell" fontHeight="8"/>
     <element xmi:type="uml:Generalization" href="exception_tree.uml#_XcfngDZcEeOzE8sk-7Njhg"/>
     <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_XcwGMjZcEeOzE8sk-7Njhg" points="[1, -50, 1, 202]$[1, -202, 1, 50]"/>
+  </edges>
+  <edges xmi:type="notation:Connector" xmi:id="_fWoFgDapEeOuONErtXyEpg" type="4002" source="_aeRPcDapEeOuONErtXyEpg" target="_MUQu0DZcEeOzE8sk-7Njhg" routing="Rectilinear" avoidObstructions="true" lineColor="0">
+    <children xmi:type="notation:DecorationNode" xmi:id="_fWqhwDapEeOuONErtXyEpg" type="6007">
+      <layoutConstraint xmi:type="notation:Location" xmi:id="_fWqhwTapEeOuONErtXyEpg" y="40"/>
+    </children>
+    <styles xmi:type="notation:FontStyle" xmi:id="_fWoFgTapEeOuONErtXyEpg" fontName="Cantarell" fontHeight="8"/>
+    <element xmi:type="uml:Generalization" href="exception_tree.uml#_fV_zYDapEeOuONErtXyEpg"/>
+    <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_fWoFgjapEeOuONErtXyEpg" points="[-50, -47, 84, 77]$[-120, -109, 14, 15]"/>
+    <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_fW2vADapEeOuONErtXyEpg" id="(0.84,0.85)"/>
   </edges>
 </notation:Diagram>

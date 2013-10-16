@@ -177,6 +177,14 @@ class connection_error : remote_exception {
 public:
 	connection_error (std::string __message) : remote_exception(__message) {}
 };
+
+/*
+ */
+class query_execution : remote_exception {
+public:
+	query_execution (std::string __message) : remote_exception(__message) {}
+};
+
 };	/* end of openDB namespace */
 
 #endif

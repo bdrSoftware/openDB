@@ -10,5 +10,35 @@
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-#include "query.hpp"
-using namespace std;
+#ifndef __OPENDB_RESULT_MANAGEMENT_HEADER__
+#define __OPENDB_RESULT_MANAGEMENT_HEADER__
+
+#include "exception.hpp"
+#include "table.hpp"
+#include "libpq-fe.h"
+#include <string>
+
+namespace openDB {
+/*
+ */
+class result {
+public:
+	result (PGresult* pgresult) throw (remote_exception&) : __pgresult(pgresult), __result(0) {}
+
+private:
+	PGresult*	__pgresult;
+	table*		__result;
+
+	enum status {empty, commandOK, tuplesOK, nonFatal, fatal};
+	enum status queryStatus	() const;
+	std::string statusMsg () const;
+	std::string errorMsg () const;
+
+	int num_tuples () const;
+	int num_columns	() const;
+	std::string column_name	(int colNumber) const;
+	std::string value (int row, int col) const;
+	bool is_null (int row, int col) const;
+};
+};
+#endif
