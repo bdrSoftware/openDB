@@ -13,6 +13,7 @@
 #define __OPENDB_DATABASE_HEADER__
 
 #include "schema.hpp"
+#include "dbms.hpp"
 
 namespace openDB {
 /* Un oggetto di tipo database astrae il concetto di database sql. Mette a disposizione la possibilità di definire schemi (vedi oggetto schema, definito nell'header
@@ -26,7 +27,7 @@ public:
 		 * agli oggetti di tipo schema e table che ne compongono la struttura. Le informazioni vengono salvate in una cartella il cui nome corrisponde al nome indicati.
 		 * Se il nome non viene indicato viene generata una eccezione di tipo 'storage_exception'.
 		 */
-		explicit database(std::string databaseName) throw (storage_exception&);
+		database(std::string databaseName, unsigned _cuncurrend_connection = 5) throw (storage_exception&);
 
 		/* Questa funzione restituisce il nome di undatabase.
 		 */
@@ -74,12 +75,70 @@ public:
 		const schema& operator[] (std::string schemaName) const throw (schema_not_exists&)
 			{return get_iterator(schemaName)->second;}
 
-		/* La funzione commit restituisce un puntatore 'intelligente' ad un oggetto lista di stringhe contenente comandi sql relativi alle operazioni di aggiornamento da
-		 * effettuare sul database remoto a fronte delle modifiche apportate localmente ai record gestiti dalle tabelle che compongono gli schemi del database considerato.
-		 * Ciascuno di questi comandi deve essere inviato al database remoto. Nessuna modifica viene effettuata sui record dopo la generazione dei comandi sql, quindi sa'
-		 * necessario ricaricarli dal database.
+
+
+		/* Le seguenti consentono di impostare o ottenere i parametri di connessione al database remoto.
 		 */
-		std::unique_ptr<std::list<std::string>> commit() const throw ();
+		void host (std::string _host) throw ()
+			{__remote_database.host(_host);}
+		std::string host () const throw ()
+			{return __remote_database.host();}
+		void port (std::string _port) throw ()
+			{__remote_database.port(_port);}
+		std::string port () const throw ()
+			{return __remote_database.port();}
+		void dbname (std::string _dbname) throw ()
+			{__remote_database.dbname(_dbname);}
+		std::string dbname () const throw ()
+			{return __remote_database.dbname();}
+		void user (std::string _user) throw ()
+			{__remote_database.user(_user);}
+		std::string user () const throw ()
+			{return __remote_database.user();}
+		void passwd (std::string _passwd) throw ()
+			{__remote_database.passwd(_passwd);}
+		std::string passwd () const throw ()
+			{return __remote_database.passwd();}
+
+		/* Le funzioni seguenti gestiscono la connessione al DBMS.
+		 * La funzione connect() avvia un tentativo di connessione al server postgres. Tale tentativo è bloccante per il thread che
+		 * richiama la funzione, ciò vuo, dire che esso rimane in attesa del termine del tentativo. Qualora il tentativo di connessione
+		 * fallisca, viene generata una eccezione di tipo connection_error, derivata da remote_exception, contenente un messaggio che
+		 * illustra le cause del fallimento della connessione.
+		 *
+		 * La funzione disconnect() termina una connessione, liberando la memoria occupata e rilasciando le risorse necessarie a
+		 * mantenerla attiva.
+		 *
+		 * La funzione reset() azzera un canale di comunicazione, ossia una connessione precedentemente attiva che per una qualche
+		 * ragione è stata persa.
+		 */
+		void connect () throw (remote_exception&)
+			{__remote_database.connect();}
+		void disconnect () throw ()
+			{__remote_database.disconnect();}
+		void reset () throw ()
+			{__remote_database.reset();}
+
+		unsigned long exec_query(std::string command) throw (basic_exception&)
+			{return __remote_database.exec_query(command);}
+		unsigned long exec_query_noblock(std::string command) throw (basic_exception&)
+			{return __remote_database.exec_query_noblock(command);}
+
+		bool executed (unsigned long queryID) const throw (result_exception&)
+			{return __remote_database.executed(queryID);}
+
+		table& get_result(unsigned queryID) throw (result_exception&)
+			{return __remote_database.get_result(queryID);}
+
+		void erase (unsigned long queryID) throw (result_exception&)
+			{__remote_database.erase(queryID);}
+
+		/*
+		 */
+		void load_structure() throw (basic_exception&);
+		void load_tuple() throw (basic_exception&);
+
+		std::unique_ptr<std::list<std::string>> commit() const throw (basic_exception&);
 
 private:
 		std::string 								__databaseName;			/*	nome del database.	*/
@@ -105,6 +164,54 @@ private:
 		 */
 		std::unordered_map<std::string, schema>::const_iterator get_iterator(std::string schemaName) const throw (schema_not_exists&);
 		std::unordered_map<std::string, schema>::iterator get_iterator(std::string schemaName) throw (schema_not_exists&);
+
+
+		/*parte "remota"*/
+		static const std::string __all_column;
+		struct all_column_query_field_name {
+			std::string table_schema;
+			std::string table_name;
+			std::string column_name;
+			std::string udt_name;
+			std::string character_maximum_length;
+			std::string numeric_precision;
+			std::string numeric_scale;
+			std::string datetime_precision;
+			std::string column_default;
+		};
+		static const all_column_query_field_name all_column_field_name;
+		sqlType::type_base* column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale);
+		void create_structure(table& structure_table);
+
+		static const std::string __key_column;
+		struct key_column_query_field_name {
+			std::string table_schema;
+			std::string table_name;
+			std::string column_name;
+		};
+		static const key_column_query_field_name key_column_field_name;
+		void define_key(table& key_table);
+
+		static const std::string __referential;
+		struct referential_query_field_name {
+			std::string table_schema;
+			std::string table_name;
+			std::string column_name;
+			std::string referred_table_schema;
+			std::string referred_table_name;
+			std::string referred_column_name;
+		};
+		static const referential_query_field_name referential_field_name;
+
+		dbms __remote_database;
+
+		/* La funzione seguente restituisce un puntatore 'intelligente' ad un oggetto lista di stringhe contenente comandi sql relativi alle operazioni di aggiornamento da
+		 * effettuare sul database remoto a fronte delle modifiche apportate localmente ai record gestiti dalle tabelle che compongono gli schemi del database considerato.
+		 * Ciascuno di questi comandi deve essere inviato al database remoto. Nessuna modifica viene effettuata sui record dopo la generazione dei comandi sql, quindi sa'
+		 * necessario ricaricarli dal database.
+		 */
+		std::unique_ptr<std::list<std::string>> command_generator() const throw ();
+
 };	/*	end of	database declaration	*/
 };	/*	end of openDB namespace	*/
 #endif

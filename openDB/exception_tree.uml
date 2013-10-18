@@ -73,4 +73,10 @@
   <packagedElement xmi:type="uml:Class" xmi:id="_acHTUDapEeOuONErtXyEpg" name="query_execution">
     <generalization xmi:type="uml:Generalization" xmi:id="_fV_zYDapEeOuONErtXyEpg" general="_MT-a8DZcEeOzE8sk-7Njhg"/>
   </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_pkDIEDczEeOoUJYXq9kYOg" name="null_pointer">
+    <generalization xmi:type="uml:Generalization" xmi:id="_wP_boDczEeOoUJYXq9kYOg" general="_MT-a8DZcEeOzE8sk-7Njhg"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_rQDW4DczEeOoUJYXq9kYOg" name="result_exception">
+    <generalization xmi:type="uml:Generalization" xmi:id="_vrBtYDczEeOoUJYXq9kYOg" general="_MT-a8DZcEeOzE8sk-7Njhg"/>
+  </packagedElement>
 </uml:Model>

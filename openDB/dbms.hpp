@@ -17,10 +17,10 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <map>
+#include <unordered_map>
 #include <memory>
 
-#include "query.hpp"
+#include "connection.hpp"
 
 namespace openDB {
 /*
@@ -29,7 +29,7 @@ class dbms {
 public :
 	/*
 	 */
-	explicit dbms(unsigned _cuncurrend_connection = 5) throw ();
+	explicit dbms(unsigned _cuncurrend_connection = 5) throw (remote_exception&);
 	~dbms();
 
 	/*
@@ -70,31 +70,47 @@ public :
 	 * La funzione reset() azzera un canale di comunicazione, ossia una connessione precedentemente attiva che per una qualche
 	 * ragione è stata persa.
 	 */
-	void connect () throw (connection_error&);
+	void connect () throw (remote_exception&);
 	void disconnect () throw ();
 	void reset () throw ();
 
-	unsigned long exec_query(std::string command) const throw (remote_exception&);
+	unsigned long exec_query(std::string command) throw (basic_exception&);
+	unsigned long exec_query_noblock(std::string command) throw (basic_exception&);
 
+	bool executed (unsigned long resultID) const throw (result_exception&)
+		{return get_iterator(resultID)->second.completed;}
+
+	table& get_result(unsigned resultID) throw (result_exception&)
+		{return *get_iterator(resultID)->second.result_table;}
+	table& operator[] (unsigned resultID) throw (result_exception&)
+		{return *get_iterator(resultID)->second.result_table;}
+
+	void erase (unsigned long queryID) throw (result_exception&);
 
 private:
-	unsigned __cuncurrent_connection;
+	unsigned num_of_connection;
 
-	struct connection_manager {
-		unsigned __id;
-		connection __pgConnection;
-		std::mutex __busy_mtx;
+	struct connection_mtx {
+		connection conn;
+		std::mutex busy_mtx;
 	};
-	connection_manager* __pgConnection_array;
+	connection_mtx* connection_array;
 
-	unsigned long __queryID;
-	std::map<unsigned long, query> __queryMap;
-
-	std::mutex __connection_free_mtx;
-	std::condition_variable_any __connection_free_cv;
-	unsigned __connection_free;
+	std::mutex connection_free_mtx;
+	std::condition_variable_any connection_free_cv;
+	unsigned num_of_free_connection;
 	void execute_query (unsigned long id) throw ();
-};
 
+	unsigned long queryID;
+	struct query {
+		std::string command;
+		std::unique_ptr<table> result_table;
+		bool completed;
+		query(std::string cmd) : command(cmd), completed(false) {}
+	};
+	std::unordered_map<unsigned long, query> query_map;
+	std::unordered_map<unsigned long, query>::const_iterator get_iterator(unsigned long) const throw (result_exception&);
+	std::unordered_map<unsigned long, query>::iterator get_iterator(unsigned long) throw (result_exception&);
+};
 };
 #endif

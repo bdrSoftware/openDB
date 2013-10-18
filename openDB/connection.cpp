@@ -13,16 +13,14 @@
 #include "connection.hpp"
 using namespace openDB;
 
-void connection::connect () throw (connection_error&) {
+void connection::connect () throw (remote_exception&) {
 	std::string connection_string = "host='" + __host + "' port='" + __port + "' dbname='" + __dbname + "' user='" +  __user + "' password='" + __passwd + "'";
 	__pgconnection = PQconnectdb(connection_string.c_str());
 	if  (__pgconnection == 0)
-		throw connection_error("Can not establish a connection: memory is insufficient.");
+		throw null_pointer("Can not establish a connection: memory is insufficient.");
 	else
-		if (PQstatus(__pgconnection) == CONNECTION_BAD) {
-			disconnect();
+		if (PQstatus(__pgconnection) != CONNECTION_OK)
 			throw connection_error ("Can not establish a connection: " + std::string(PQerrorMessage(__pgconnection)));
-		}
 }
 
 void connection::disconnect () throw () {
@@ -38,21 +36,40 @@ void connection::reset () throw () {
 }
 
 
-result& connection::exec_query(std::string command) const throw (remote_exception&) {
+std::unique_ptr<table> connection::exec_query(unsigned long queryID, std::string command) const throw (basic_exception&) {
 	if (__pgconnection == 0)
 		throw connection_error("Connection not established!");
 
 	PGresult* pgresult = PQexec(__pgconnection, command.c_str());
 	if (pgresult != 0) {
-		if (PQresultStatus(pgresult) ==  PGRES_COMMAND_OK || PQresultStatus(pgresult) == PGRES_TUPLES_OK) {
-			result _result(pgresult);
-			return _result;
-		}
+		if (PQresultStatus(pgresult) ==  PGRES_COMMAND_OK || PQresultStatus(pgresult) == PGRES_TUPLES_OK)
+			return process_result(queryID, pgresult);
 		else
 			throw query_execution(std::string(PQresStatus(PQresultStatus(pgresult))) + ": " + std::string(PQresultErrorMessage(pgresult)));
 	}
 	else
-		throw query_execution("Can not execute this query: memory is insufficient!");
+		throw null_pointer("Can not execute this query: memory is insufficient!");
 }
 
 
+std::unique_ptr<table> connection::process_result(unsigned long queryID, PGresult* pgresult) const throw (basic_exception&){
+	std::unique_ptr<table> table_ptr(new table("table " + std::to_string(queryID), "", true, false));
+	if (PQresultStatus(pgresult) ==  PGRES_COMMAND_OK) { // PGRES_COMMAND_OK is for commands that can never return rows (INSERT, UPDATE, etc.)
+		table_ptr->add_column("result status", new sqlType::varchar());
+		std::unordered_map<std::string, std::string> tmp;
+		tmp.emplace("result status", std::string(PQresStatus(PGRES_COMMAND_OK)));
+		table_ptr->insert(tmp, record::loaded);
+	}
+	else {
+		for (int col = 0; col < num_columns(pgresult); col++) //creazione delle colonne
+			table_ptr->add_column(column_name(pgresult, col), new sqlType::varchar);
+
+		for (int row = 0; row < num_tuples(pgresult); row++) { //riempimento delle tuple
+			std::unordered_map<std::string, std::string> tmp;
+			for (int col = 0; col < num_columns(pgresult); col++) //creazione della mappa per l'inserimento di una tupla
+				tmp.emplace(column_name(pgresult, col), value(pgresult, row, col));
+			table_ptr->insert(tmp, record::loaded);
+		}
+	}
+	return table_ptr;
+}

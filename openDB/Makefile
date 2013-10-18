@@ -1,12 +1,12 @@
 CC = g++
-OPZ = -ggdb3 -Wall -Wextra -fPIC -std=c++11
+OPZ = -ggdb3 -O2 -Wall -Wextra -fPIC -std=c++11
 INCLUDE_LIBPQ = -I/usr/include/postgresql
 
 
 .PHONY: clean rebuild
 
-openDB.a : common.o sqlType.o queryAttribute.o column.o record.o memory_storage.o file_storage.o table.o schema.o connection.o database.o
-	ar rcs openDB.a sqlType.o queryAttribute.o column.o common.o record.o memory_storage.o file_storage.o table.o schema.o connection.o database.o
+openDB.a : common.o sqlType.o queryAttribute.o column.o record.o memory_storage.o file_storage.o table.o schema.o connection.o dbms.o database.o
+	ar rcs openDB.a sqlType.o queryAttribute.o column.o common.o record.o memory_storage.o file_storage.o table.o schema.o connection.o dbms.o database.o
 
 clean :
 	rm -f openDB.a *.o unitTest
@@ -14,8 +14,8 @@ clean :
 rebuild : clean openDB.a
 
 unitTest : openDB.a unitTest.cpp
-	$(CC) $(OPZ) -c -o unitTest.o unitTest.cpp
-	$(CC) -o unitTest unitTest.o openDB.a
+	$(CC) $(OPZ) -c -o unitTest.o unitTest.cpp $(INCLUDE_LIBPQ)
+	$(CC) -o unitTest unitTest.o openDB.a -lpq -lpthread
 
 common.o : common.hpp common.cpp
 	$(CC) $(OPZ) -c -o common.o common.cpp
@@ -47,8 +47,11 @@ schema.o : schema.cpp schema.hpp
 connection.o : connection.cpp connection.hpp
 	$(CC) $(OPZ) -c -o connection.o connection.cpp $(INCLUDE_LIBPQ)
 
+dbms.o : dbms.cpp dbms.hpp
+	$(CC) $(OPZ) -c -o dbms.o dbms.cpp $(INCLUDE_LIBPQ)
+
 database.o : database.cpp database.hpp
-	$(CC) $(OPZ) -c -o database.o database.cpp
+	$(CC) $(OPZ) -c -o database.o database.cpp $(INCLUDE_LIBPQ)
 
 
 

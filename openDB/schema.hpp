@@ -84,6 +84,12 @@ public :
 		const table& operator[] (std::string tableName) const throw (table_not_exists&)
 			{return get_iterator(tableName)->second;}
 
+		/* La funzione seguente genera i comandi sql per il caricamento delle tuple nelle tabelle dello schema.
+		 * Restutuisce un puntatore ad una struttura unordered_map il cui primo campo corrisponde al nome della tabella ed il secondo campo corrisponde al comando sql
+		 * per il caricamento delle tuple nella stessa.
+		 */
+		std::unique_ptr<std::unordered_map<std::string, std::string>> load_command() const throw ();
+
 		/* La funzione commit restituisce un puntatore 'intelligente' ad un oggetto lista di stringhe contenente comandi sql relativi alle operazioni di aggiornamento da
 		 * effettuare sul database remoto a fronte delle modifiche apportate localmente ai record gestiti dalle tabelle che compongono l'oggetto schema considerato.
 		 * Ciascuno di questi comandi deve essere inviato al database remoto. Nessuna modifica viene effettuata sui record dopo la generazione dei comandi sql, quindi sa'
@@ -131,6 +137,7 @@ private :
 		std::string insert_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
 		std::string update_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
 		std::string delete_sql(std::string tableName, unsigned long ID) const throw (basic_exception&);
+		std::string load_command(std::string tableName) const throw (table_not_exists&);
 
 };	/*	end of schema definition	*/
 };	/*	end of openDB namespace	*/

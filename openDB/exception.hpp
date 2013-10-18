@@ -21,7 +21,7 @@ namespace openDB {
  */
 class basic_exception {
 public:
-		basic_exception (std::string __message) : message(__message) {}
+		basic_exception (const std::string& __message) : message(__message) {}
 		std::string what() const {return message;}
 private:
 		std::string message;
@@ -31,77 +31,77 @@ private:
  */
 class data_exception : public basic_exception{
 public:
-	data_exception (std::string __message) : basic_exception(__message) {}
+	data_exception (const std::string& __message) : basic_exception(__message) {}
 };
 
 /*
  */
 class access_exception : public basic_exception {
 public:
-	access_exception (std::string __message) : basic_exception(__message) {}
+	access_exception (const std::string& __message) : basic_exception(__message) {}
 };
 
 /*
  */
 class storage_exception : public basic_exception {
 public:
-	storage_exception (std::string __message) : basic_exception(__message) {}
+	storage_exception (const std::string& __message) : basic_exception(__message) {}
 };
 
 /*
  */
 class remote_exception : public basic_exception {
 public:
-	remote_exception (std::string __message) : basic_exception(__message) {}
+	remote_exception (const std::string& __message) : basic_exception(__message) {}
 };
 
 /*
  */
 class key_empty : public data_exception {
 public:
-	key_empty (std::string __message) : data_exception(__message) {}
+	key_empty (const std::string& __message) : data_exception(__message) {}
 };
 
 /*
  */
 class invalid_argument : public data_exception {
 public:
-	invalid_argument (std::string __message) : data_exception(__message) {}
+	invalid_argument (const std::string& __message) : data_exception(__message) {}
 };
 
 /*
  */
 class ambiguous_value : public data_exception {
 public:
-	ambiguous_value (std::string __message) : data_exception(__message) {}
+	ambiguous_value (const std::string& __message) : data_exception(__message) {}
 };
 
 /*
  */
 class invalid_date : public data_exception {
 public:
-	invalid_date (std::string __message) : data_exception(__message) {}
+	invalid_date (const std::string& __message) : data_exception(__message) {}
 };
 
 /*
  */
 class invalid_time : public data_exception {
 public:
-	invalid_time (std::string __message) : data_exception(__message) {}
+	invalid_time (const std::string& __message) : data_exception(__message) {}
 };
 
 /*
  */
 class out_of_boud : public data_exception {
 public:
-	out_of_boud (std::string __message) : data_exception(__message) {}
+	out_of_boud (const std::string& __message) : data_exception(__message) {}
 };
 
 /*
  */
 class value_too_long : public data_exception {
 public:
-	value_too_long (std::string __message) : data_exception(__message) {}
+	value_too_long (const std::string& __message) : data_exception(__message) {}
 };
 
 
@@ -109,80 +109,91 @@ public:
  */
 class column_exists : public access_exception {
 public:
-	column_exists (std::string __message) : access_exception(__message) {}
+	column_exists (const std::string& __message) : access_exception(__message) {}
 };
 
 /*
  */
 class column_not_exists : public access_exception {
 public:
-	column_not_exists (std::string __message) : access_exception(__message) {}
+	column_not_exists (const std::string& __message) : access_exception(__message) {}
 };
 
 /*
  */
 class table_not_exists : public access_exception {
 public:
-	table_not_exists (std::string __message) : access_exception(__message) {}
+	table_not_exists (const std::string& __message) : access_exception(__message) {}
 };
 
 /*
  */
 class table_exists : public access_exception {
 public:
-	table_exists (std::string __message) : access_exception(__message) {}
+	table_exists (const std::string& __message) : access_exception(__message) {}
 };
 
 /*
  */
 class schema_not_exists : public access_exception {
 public:
-	schema_not_exists (std::string __message) : access_exception(__message) {}
+	schema_not_exists (const std::string& __message) : access_exception(__message) {}
 };
 
 /*
  */
 class schema_exists : public access_exception {
 public:
-	schema_exists (std::string __message) : access_exception(__message) {}
+	schema_exists (const std::string& __message) : access_exception(__message) {}
 };
 /*
  */
 class record_not_exists : public storage_exception {
 public:
-	record_not_exists (std::string __message) : storage_exception(__message) {}
+	record_not_exists (const std::string& __message) : storage_exception(__message) {}
 };
 /*
  */
 class file_creation : public storage_exception {
 public:
-	file_creation (std::string __message) : storage_exception(__message) {}
+	file_creation (const std::string& __message) : storage_exception(__message) {}
 };
 /*
  */
 class file_open : public storage_exception {
 public:
-	file_open (std::string __message) : storage_exception(__message) {}
+	file_open (const std::string& __message) : storage_exception(__message) {}
 };
 /*
  */
 class io_error : public storage_exception {
 public:
-	io_error (std::string __message) : storage_exception(__message) {}
+	io_error (const std::string& __message) : storage_exception(__message) {}
 };
 
 /*
  */
-class connection_error : remote_exception {
+class connection_error : public remote_exception {
 public:
-	connection_error (std::string __message) : remote_exception(__message) {}
+	connection_error (const std::string& __message) : remote_exception(__message) {}
 };
-
 /*
  */
-class query_execution : remote_exception {
+class query_execution : public remote_exception {
 public:
-	query_execution (std::string __message) : remote_exception(__message) {}
+	query_execution (const std::string& __message) : remote_exception(__message) {}
+};
+/*
+ */
+class null_pointer : public remote_exception {
+public:
+	null_pointer (const std::string& __message) : remote_exception(__message) {}
+};
+/*
+ */
+class result_exception : public remote_exception {
+public:
+	result_exception (const std::string& __message) : remote_exception(__message) {}
 };
 
 };	/* end of openDB namespace */

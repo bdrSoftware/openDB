@@ -14,7 +14,7 @@
 using namespace openDB;
 
 table::table (std::string tableName, std::string storageDirectory, bool managesResult, bool store_on_file) throw (basic_exception&) : __managesResult(managesResult) {
-	(tableName != "" ? __tableName = tableName : throw access_exception("Error creating a table: you can not create a table with no name. Check the 'tableName' paramether."));
+	( tableName != "" ? __tableName = tableName : throw access_exception("Error creating a table: you can not create a table with no name. Check the 'tableName' paramether."));
 	((store_on_file && storageDirectory == "") ? throw storage_exception("Error creating table '" + tableName + "': you must specify where to store table's rows. Check the 'storageDirectory' paramether.") : __storageDirectory = storageDirectory);
 	(store_on_file ? __storage = std::unique_ptr<storage>(new file_storage(storageDirectory + __tableName + ".oDB")) : __storage = std::unique_ptr<storage>(new memory_storage));
 }
@@ -56,7 +56,7 @@ void table::to_html (std::string fileName, bool print_row, std::string bgcolor) 
 	std::unique_ptr<std::list<unsigned long>> record_id = __storage->internalID();
 	for (std::list<unsigned long>::const_iterator id_it = record_id->begin(); id_it != record_id->end(); id_it++) {
 		if (__storage->visible(*id_it)) {
-			((print_row && hightlight) ? file <<"<tr>" <<std::endl : file <<"<tr bgcolor=\"" <<bgcolor <<"\">" <<std::endl);
+			((print_row && hightlight) ? file <<"<tr bgcolor=\"" <<bgcolor <<"\">" <<std::endl : file <<"<tr>" <<std::endl);
 			std::unique_ptr<std::unordered_map<std::string, std::string>> values = __storage->current(*id_it);
 			for (std::unordered_map <std::string, column>::const_iterator col_it = __columnsMap.begin(); col_it != __columnsMap.end(); col_it++)
 				file <<"<td>" <<values->find(col_it->first)->second <<"</td>" <<std::endl;
@@ -66,6 +66,7 @@ void table::to_html (std::string fileName, bool print_row, std::string bgcolor) 
 	}
 
 	file<<"</table>" <<std::endl
+	<<"<p><p>" <<std::to_string(record_id->size()).c_str() <<" rows" <<std::endl
 	<<"</body>" <<std::endl
 	<<"</html>" <<std::endl;
 
