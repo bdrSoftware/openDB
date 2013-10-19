@@ -32,31 +32,18 @@ public :
 	explicit dbms(unsigned _cuncurrend_connection = 5) throw (remote_exception&);
 	~dbms();
 
-	/*
+	/* Le seguenti consentono di impostare o ottenere i parametri di connessione al database remoto.
 	 */
 	void host (std::string _host) throw ();
 	std::string host () const throw ();
-
-	/*
-	 */
 	void port (std::string _port) throw ();
 	std::string port () const throw ();
-
-	/*
-	 */
 	void dbname (std::string _dbname) throw ();
 	std::string dbname () const throw ();
-
-	/*
-	 */
 	void user (std::string _user) throw ();
 	std::string user () const throw ();
-
-	/*
-	 */
 	void passwd (std::string _passwd) throw ();
 	std::string passwd () const throw ();
-
 
 	/* Le funzioni seguenti gestiscono la connessione al DBMS.
 	 * La funzione connect() avvia un tentativo di connessione al server postgres. Tale tentativo Ã¨ bloccante per il thread che
@@ -74,17 +61,36 @@ public :
 	void disconnect () throw ();
 	void reset () throw ();
 
+	/* La funzione exec_query consente di eseguire un comando sql sul database remoto. Restituisce un identificativo unico attraverso il
+	 * quale e' possibile accedere ai risultati di esecuzione della query. Causa il blocco del thread che la richiama fino al termine
+	 * delle operazioni e di interpretazione dei risultati.
+	 * La funzione exec_query_nonblock non causa il blocck del thread che la richiama. Prima di accedere al result è necessario attende-
+	 * re il termine delle operazioni. E' possibile richiamare la funzione executed() che restituisce true se l'esecuzione di una query
+	 * e'terminata
+	 * Puo' generare una eccezione di tipo 'connection_error' nel caso in cui si tenti l'esecuzione di una query su una connessione
+	 * non attiva o non valida, oppure 'query_execution' nel caso in cui l'esecuzione della query non vada a buon fine oppure ancora
+	 * una eccezione di tipo null_pointer nel caso in cui il tentativo di esecuzione della query non Ã¨ stato avviato.
+	 */
 	unsigned long exec_query(std::string command) throw (basic_exception&);
 	unsigned long exec_query_noblock(std::string command) throw (basic_exception&);
 
+	/* La funzione executed() permette di verificare il termine dell'esecuzione di una query
+	 */
 	bool executed (unsigned long resultID) const throw (result_exception&)
 		{return get_iterator(resultID)->second.completed;}
 
+	/* La funzione get_result restituisce un oggetto 'table' contenente il risultato di esecuzione di una query. E' bene, nel caso in cui
+	 * l'esecuzione sia stata avviata chiamando la funzione exec_query_noblock(), verificare che l'esecuzione sia terminata richiamando la
+	 * funzione executed().
+	 * L'operatore [] è perfettamente equivalente alla funzione get_result.
+	 */
 	table& get_result(unsigned resultID) throw (result_exception&)
 		{return *get_iterator(resultID)->second.result_table;}
 	table& operator[] (unsigned resultID) throw (result_exception&)
 		{return *get_iterator(resultID)->second.result_table;}
 
+	/* La seguente libera la memoria occupata dai risultati di esecuzione di una query. Tali risultati non saranno più disponibili.
+	 */
 	void erase (unsigned long queryID) throw (result_exception&);
 
 private:

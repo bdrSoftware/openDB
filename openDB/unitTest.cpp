@@ -20,7 +20,7 @@ void print_list(const list<string>& _list);
 int main () {
 	try {
 
-		openDB::database _database("prova");
+		openDB::database _database;
 		_database.host("127.0.0.1");
 		_database.port("5432");
 		_database.dbname("platinet_test");

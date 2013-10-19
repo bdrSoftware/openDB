@@ -16,6 +16,7 @@
 	#include <unistd.h>
 	#include <sys/stat.h>
 	#include <sys/types.h>
+	#define base_path "/tmp/"
 #else
 //#include ??
 #endif
@@ -55,25 +56,22 @@ const database::referential_query_field_name database::referential_field_name = 
 		"referred_column_name"
 };
 
-database::database(std::string databaseName, unsigned _cuncurrend_connection) throw (storage_exception&) : __remote_database(_cuncurrend_connection) {
-	(databaseName != "" ? __databaseName = databaseName : throw storage_exception("Error creating database: you can not create a database with no name, it's used in storing operation.  Check the 'databaseName' paramether."));
+database::database(unsigned _cuncurrend_connection) throw (storage_exception&) : __remote_database(_cuncurrend_connection) {
 	#if !defined __WINDOWS_COMPILING_
 		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux	*/
-		__storageDirectory = "/tmp/" + __tmpStorageDirectory + "/";
+		__storageDirectory = base_path + __tmpStorageDirectory + "/";
 		mkdir(__storageDirectory.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		__storageDirectory += std::to_string(getpid()) + "/";
-		mkdir(__storageDirectory.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		__storageDirectory += __databaseName + "/";
 		mkdir(__storageDirectory.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	#else
 		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo windows	*/
 	#endif
 }
 
-std::unique_ptr<std::list<std::string>> database::schemas_name (bool attach_database_name) const throw () {
+std::unique_ptr<std::list<std::string>> database::schemas_name () const throw () {
 	std::unique_ptr<std::list <std::string>> list_ptr(new std::list<std::string>);
 	for (std::unordered_map <std::string, schema>::const_iterator it = __schemasMap.begin(); it != __schemasMap.end(); it++)
-		(attach_database_name ? list_ptr -> push_back(__databaseName + "." + it -> first) : list_ptr -> push_back(it -> first));
+		list_ptr -> push_back(it -> first);
 	return list_ptr;
 }
 
@@ -82,7 +80,7 @@ std::unordered_map<std::string, schema>::const_iterator database::get_iterator(s
 	if (it != __schemasMap.end())
 		return it;
 	else
-		throw schema_not_exists("'" + schemaName + "' doesn't exists in database '" + __databaseName + "'");
+		throw schema_not_exists("'" + schemaName + "' doesn't exists in database.");
 }
 
 std::unordered_map<std::string, schema>::iterator database::get_iterator(std::string schemaName) throw (schema_not_exists&) {
@@ -90,29 +88,28 @@ std::unordered_map<std::string, schema>::iterator database::get_iterator(std::st
 	if (it != __schemasMap.end())
 		return it;
 	else
-		throw schema_not_exists("'" + schemaName + "' doesn't exists in database '" + __databaseName + "'");
+		throw schema_not_exists("'" + schemaName + "' doesn't exists in database.");
 }
 
 void database::load_structure() throw (basic_exception&) {
 	__schemasMap.clear();
 //	unsigned int referential_id = __remote_database.exec_query(__referential);
-	unsigned int key_column_id = __remote_database.exec_query(__key_column);
+	unsigned int key_column_id = __remote_database.exec_query_noblock(__key_column);
 	unsigned int all_column_id = __remote_database.exec_query(__all_column);
 
 	//creazione della struttura del database
 	table& _all_column_table = __remote_database.get_result(all_column_id);
-	_all_column_table.to_html("structure.html");
 	create_structure(_all_column_table);
 
 
 	//definizione delle colonne chiave
+	while(!__remote_database.executed(key_column_id)); //attesa completamento query
 	table& _key_column_table = __remote_database.get_result(key_column_id);
-	_key_column_table.to_html("key_column.html");
 	define_key(_key_column_table);
 
 
 	__remote_database.erase(all_column_id);
-//	__remote_database.erase(key_column_id);
+	__remote_database.erase(key_column_id);
 
 //	std::unique_ptr<table> _referential_table = __remote_database.get_result(referential_id);
 
@@ -191,8 +188,6 @@ void database::load_tuple() throw (basic_exception&) {
 	for (std::unordered_map<std::string, schema>::iterator schema_it = __schemasMap.begin(); schema_it!=__schemasMap.end(); schema_it++) {
 		std::unique_ptr<std::unordered_map<std::string, std::string>> load_commands = schema_it->second.load_command();
 		for (std::unordered_map<std::string, std::string>::const_iterator commands_it = load_commands->begin(); commands_it != load_commands->end(); commands_it++) {
-			std::cout <<"Loading " <<commands_it->first <<std::endl;
-			std::cout <<"Query " <<commands_it->second <<std::endl;
 			unsigned long query_id = __remote_database.exec_query(commands_it->second);
 			table& _result = __remote_database.get_result(query_id);
 			table& _table = schema_it->second.get_table(commands_it->first);

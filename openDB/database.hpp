@@ -27,18 +27,13 @@ public:
 		 * agli oggetti di tipo schema e table che ne compongono la struttura. Le informazioni vengono salvate in una cartella il cui nome corrisponde al nome indicati.
 		 * Se il nome non viene indicato viene generata una eccezione di tipo 'storage_exception'.
 		 */
-		database(std::string databaseName, unsigned _cuncurrend_connection = 5) throw (storage_exception&);
-
-		/* Questa funzione restituisce il nome di undatabase.
-		 */
-		std::string name() const throw ()
-			{return __databaseName;}
+		explicit database(unsigned _cuncurrend_connection = 5) throw (storage_exception&);
 
 		/* La funzione consente l'aggiunta di uno schema alla struttura del database. Se esiste giÃ  uno schema con nome uguale a quello che si sta per inserire, viene
 		 * generata una eccezione di tipo 'schema_exists', derivata da 'access_exception'
 		 */
 		void add_schema(std::string schemaName) throw (schema_exists&)
-			{(find_schema(schemaName) ? throw("Schema '" + schemaName + "' already exists in database '" + __databaseName + "'") : __schemasMap.emplace(schemaName, schema(schemaName, __storageDirectory)));}
+			{(find_schema(schemaName) ? throw("Schema '" + schemaName + "' already exists in database.") : __schemasMap.emplace(schemaName, schema(schemaName, __storageDirectory)));}
 
 		/* La funzione restituisce il numero di schemi che compongono il database.
 		 */
@@ -47,7 +42,7 @@ public:
 
 		/* La funzione schemas_name restituisce una lista di stringhe contenente i nomi degli schemi che compongono il database
 		 */
-		std::unique_ptr<std::list<std::string>> schemas_name (bool attach_database_name = false) const throw ();
+		std::unique_ptr<std::list<std::string>> schemas_name () const throw ();
 
 		/* La funzione find_schema restituisce true se uno schema con lo stesso nome di quello indicato compone la struttura del database. Restituisce false altrimenti.
 		 */
@@ -119,29 +114,50 @@ public:
 		void reset () throw ()
 			{__remote_database.reset();}
 
+		/* La funzione exec_query consente di eseguire un comando sql sul database remoto. Restituisce un identificativo unico attraverso il
+		 * quale e' possibile accedere ai risultati di esecuzione della query. Causa il blocco del thread che la richiama fino al termine
+ 		 * delle operazioni e di interpretazione dei risultati.
+		 * La funzione exec_query_nonblock non causa il blocck del thread che la richiama. Prima di accedere al result è necessario attende-
+		 * re il termine delle operazioni. E' possibile richiamare la funzione executed() che restituisce true se l'esecuzione di una query
+		 * e'terminata
+		 * Puo' generare una eccezione di tipo 'connection_error' nel caso in cui si tenti l'esecuzione di una query su una connessione
+		 * non attiva o non valida, oppure 'query_execution' nel caso in cui l'esecuzione della query non vada a buon fine oppure ancora
+		 * una eccezione di tipo null_pointer nel caso in cui il tentativo di esecuzione della query non Ã¨ stato avviato.
+		 */
 		unsigned long exec_query(std::string command) throw (basic_exception&)
 			{return __remote_database.exec_query(command);}
 		unsigned long exec_query_noblock(std::string command) throw (basic_exception&)
 			{return __remote_database.exec_query_noblock(command);}
 
+		/* La funzione executed() permette di verificare il termine dell'esecuzione di una query
+		 */
 		bool executed (unsigned long queryID) const throw (result_exception&)
 			{return __remote_database.executed(queryID);}
 
+		/* La funzione get_result restituisce un oggetto 'table' contenente il risultato di esecuzione di una query. E' bene, nel caso in cui
+		 * l'esecuzione sia stata avviata chiamando la funzione exec_query_noblock(), verificare che l'esecuzione sia terminata richiamando la
+		 * funzione executed().
+		 */
 		table& get_result(unsigned queryID) throw (result_exception&)
 			{return __remote_database.get_result(queryID);}
 
+		/* La seguente libera la memoria occupata dai risultati di esecuzione di una query. Tali risultati non saranno più disponibili.
+		 */
 		void erase (unsigned long queryID) throw (result_exception&)
 			{__remote_database.erase(queryID);}
 
-		/*
+		/* Le due seguenti funzioni consentono, rispettivamente, di generare localmente la struttura del database remoto e di caricare localmente
+		 * le tuple gestite dal database remoto.
 		 */
 		void load_structure() throw (basic_exception&);
 		void load_tuple() throw (basic_exception&);
 
+		/* La seguente consente di rendere effettive tutte le modifiche effetuate localmente, eseguendo comandi sql sul database remoto.
+		 * E' bene richiamare la funzione load_tuple al termine delle  operazioni di commit.
+		 */
 		std::unique_ptr<std::list<std::string>> commit() const throw (basic_exception&);
 
 private:
-		std::string 								__databaseName;			/*	nome del database.	*/
 		std::string									__storageDirectory;		/*	percorso della cartella contenente altre cartelle e file dove sono memorizzate i contenuti degli
 																			 *	oggetti che compongono il database.
 																			 */

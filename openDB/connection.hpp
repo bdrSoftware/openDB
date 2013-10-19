@@ -85,13 +85,6 @@ public:
 	 */
 	std::unique_ptr<table> exec_query(unsigned long queryID, std::string command) const throw (basic_exception&);
 
-	/* L'operatore () restituisce il puntatore alla struttura che materialmente gestisce la connessione con il server postgres.
-	 * Per ulteriori dettagli bisogna consultare il manuale di postgres, in particolare la sezione sulla libreria C che gestisce
-	 * la comunicazione con il server.
-	 */
-	PGconn* operator() () const throw ()
-		{return __pgconnection;}
-
 private:
 	/* 	- host: indirizzo o nome dell'host che ospita il server postgres che gestisce il database;
 	 * 	- post: porta da utilizzare per la connessione, di default è 5432;
