@@ -153,9 +153,10 @@ public:
 		void load_tuple() throw (basic_exception&);
 
 		/* La seguente consente di rendere effettive tutte le modifiche effetuate localmente, eseguendo comandi sql sul database remoto.
-		 * E' bene richiamare la funzione load_tuple al termine delle  operazioni di commit.
+		 * E' bene richiamare la funzione load_tuple al termine delle  operazioni di commit. Restituisce una lista contenente gli id corrispondenti
+		 * ai result generatll'esecuzione delle query.
 		 */
-		std::unique_ptr<std::list<std::string>> commit() const throw (basic_exception&);
+		std::unique_ptr<std::list<unsigned long>> commit() throw (basic_exception&);
 
 private:
 		std::string									__storageDirectory;		/*	percorso della cartella contenente altre cartelle e file dove sono memorizzate i contenuti degli

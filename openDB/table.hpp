@@ -192,20 +192,8 @@ public:
 
 		/* La funzione insert consente di creare un nuovo record e di inserirlo tra quelli gestiti dal gestore.
 		 * I paramentri sono:
-		 * 	- valueMap : mappa il cui primo campo è il nome della colonna in cui inserire il valore contenuto nel secondo campo. Se non esiste nessuna colonna con il nome
-		 * 				 specificato, viene generata una eccezione di tipo column_not_exists, derivata da access_exception. Se uno dei valori contenuti nel secondo campo
-		 * 				 non fosse valido per il tipo di colonna al quale deve corrispondere, viene generata una eccezione derivata da data_exception. Vedi l'header
-		 * 				 sqlType.hpp per i dettagli.
-		 * 	- columnsMap : mappa delle colonne che compongono una tabella. Questo parametro viene utilizzato per la validazione dei valori contenuti in valueMap.
-		 * 	- _state : rappresenta lo stato del record.
-		 * 	Lo stato del record può essere:
-		 *  - record::empty : una tupla viene creata emty quando bisogna, ad esempio, leggerla da file oppure da memoria. Costruire una tupla vuota non ha molto senso se
-		 * 					  non in questo contesto;
-		 *  - record::loaded : una tupla DEVE essere creata loaded nel caso in cui viene caricata dal database gestito;
-		 *  - record::inserting : una tupla viene creata inserting quando i dati che contiene devono essere inseriti nel database remoto;
-		 *  - record::updating : una tupla con stato updating è una tupla, già esistente nel database, i cui valori devono essere aggiornati
-		 *  - record::deleting: una tupla con stato deleting deve essere rimossa dal database;
-		 *  * Possono essere generate le seguanti tipologie di eccezione:
+		 * 	- valueMap : mappa il cui primo campo è il nome della colonna in cui inserire il valore contenuto nel secondo campo.
+		 * Possono essere generate le seguanti tipologie di eccezione:
 		 * - key_empty : se ad una colonna chiave, o che compone la chiave, è associato un valore nullo.
 		 * - column_not_exists : se una delle corrispondenze colonna-valore in valuesMap non è valida, cioè la colonna non esiste in columnsMap;
 		 * - data_exception : viene generata una eccezione di tipo derivato da data_exception (vedi header 'exception.hpp') quando la corrispondenza colonna-valore non è
@@ -213,9 +201,15 @@ public:
 		 *  - file_open : eccezione derivata da storage_exception, viene generata se, a causa di un errore qualsiasi genere, non fosse possibile aprire il file dove sono memorizzati
 		 *				  i record;
 		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
+		 *
+		 *  La funzione load è, in un certo senso, simile alla funzione insert. Mentre la funzione insert va usata quando si vuole inserire tuple nella tabella affinchè
+		 *  esse siano inserite nel database, la funzione load è utile a caricare tuple già esistenti, magari provenienti da un risultato di esecuzione di una query,
+		 *  all'interno dell'oggetto tupla. Per tanto tale funzione deve essere utilizzata soltanto in occasione del caricamento in locale delle tuple remote.
 		 */
-		unsigned long insert (std::unordered_map<std::string, std::string>& valuesMap, enum record::state _state) throw (basic_exception&)
-			{return __storage->insert(valuesMap, __columnsMap, _state);}
+		unsigned long insert (std::unordered_map<std::string, std::string>& valuesMap) throw (basic_exception&)
+			{return __storage->insert(valuesMap, __columnsMap, record::inserting);}
+		unsigned long load (std::unordered_map<std::string, std::string>& valuesMap) throw (basic_exception&)
+			{return __storage->insert(valuesMap, __columnsMap, record::loaded);}
 
 		/* La funzione update consente di marcare i valori di un record affinchè siano aggiornati correttamente dal database remoto. Prende i seguenti parametri:
 		 * consente di creare una tupla in modo corretto, inserendo opportunamente i dati. I paramentri sono:
@@ -324,6 +318,7 @@ private:
 																			 * 	chiave. Di conseguenza l'ordine in cui compaiono scorrendo il contenitore potrebbe differire dall'
 																			 * 	ordine di creazione.
 																			 */
+
 		/* La funzione get_iterator restituisce un iteratore valido ad un oggetto di classe column. Se l'oggetto non dovesse esistere, viene generata una eccezione
 		 * di tipo column_not_exist, derivata da access_exception.
 		 * Queste funzioni relativamente semplici vengono usate praticamente ovunque, all'interno di questo modulo, qualora si deve accedere ad un oggetto column, poichè

@@ -21,7 +21,7 @@ int main () {
 	try {
 
 		openDB::database _database;
-		_database.host("127.0.0.1");
+		_database.host("192.168.1.4");
 		_database.port("5432");
 		_database.dbname("platinet_test");
 		_database.user("platinet");
@@ -35,6 +35,28 @@ int main () {
 		cout << "Inizio caricamento tuple..." <<endl;
 		_database.load_tuple();
 		cout << "Caricamento tuple completato!" <<endl;
+
+		openDB::table& _table = _database["tipi_dato"]["tabella_varchar"];
+		unique_ptr<list<string>> columns_name = _table.columns_name();
+		cout <<"Comincio la generazione delle tuple per il test" <<endl;
+		const unsigned num_tuples = 5000;
+		cout <<"Test effettuato con " <<num_tuples <<" tuple." <<endl;
+		for (unsigned i = 0; i < num_tuples; i++) {
+			unordered_map<string, string> values_map;
+			for (list<string>::const_iterator it = columns_name->begin(); it != columns_name->end(); it++)
+				values_map.emplace(*it, "valore colonna " + *it + ", riga " + to_string(i));
+			_table.insert(values_map);
+		}
+		cout <<"Inizio delle operazioni di commit." <<endl;
+		unique_ptr<list<unsigned long>> id_list = _database.commit();
+		cout <<"In attesa del completamento del Commit..." <<endl;
+		for (list<unsigned long>::const_iterator it = id_list->begin(); it != id_list->end(); it++)
+			while(!_database.executed(*it));
+		cout <<"Commit completato!" <<endl;
+		cout << "Inizio caricamento tuple..." <<endl;
+		_database.load_tuple();
+		cout << "Caricamento tuple completato!" <<endl;
+		_table.to_html("tabella_varchar.html");
 	}
 	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}
 }

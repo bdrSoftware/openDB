@@ -194,17 +194,18 @@ void database::load_tuple() throw (basic_exception&) {
 			_table.clear();
 			std::unique_ptr<std::list<unsigned long>> tuple_id = _result.internalID();
 			for (std::list<unsigned long>::const_iterator tuple_it = tuple_id->begin(); tuple_it != tuple_id->end(); tuple_it++)
-				_table.insert( *_result.current(*tuple_it), record::inserting);
+				_table.load(*_result.current(*tuple_it));
 			__remote_database.erase(query_id);
 		}
 	}
 }
 
-std::unique_ptr<std::list<std::string>> database::commit() const throw (basic_exception&) {
+std::unique_ptr<std::list<unsigned long>> database::commit() throw (basic_exception&) {
 	std::unique_ptr<std::list<std::string>> command_list = command_generator();
-	std::unique_ptr<std::list<std::string>> log_list(new std::list<std::string>);
-
-	return log_list;
+	std::unique_ptr<std::list<unsigned long>> id_list(new std::list<unsigned long>);
+	for (std::list<std::string>::const_iterator it = command_list->begin(); it != command_list->end(); it++)
+		id_list->push_back(__remote_database.exec_query_noblock(*it));
+	return id_list;
 }
 
 std::unique_ptr<std::list<std::string>> database::command_generator() const throw () {

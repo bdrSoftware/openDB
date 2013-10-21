@@ -58,7 +58,7 @@ std::unique_ptr<table> connection::process_result(unsigned long queryID, PGresul
 		table_ptr->add_column("result status", new sqlType::varchar());
 		std::unordered_map<std::string, std::string> tmp;
 		tmp.emplace("result status", std::string(PQresStatus(PGRES_COMMAND_OK)));
-		table_ptr->insert(tmp, record::loaded);
+		table_ptr->load(tmp);
 	}
 	else {
 		for (int col = 0; col < num_columns(pgresult); col++) //creazione delle colonne
@@ -68,7 +68,7 @@ std::unique_ptr<table> connection::process_result(unsigned long queryID, PGresul
 			std::unordered_map<std::string, std::string> tmp;
 			for (int col = 0; col < num_columns(pgresult); col++) //creazione della mappa per l'inserimento di una tupla
 				tmp.emplace(column_name(pgresult, col), value(pgresult, row, col));
-			table_ptr->insert(tmp, record::loaded);
+			table_ptr->load(tmp);
 		}
 	}
 	return table_ptr;
