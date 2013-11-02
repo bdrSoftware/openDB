@@ -22,9 +22,7 @@
 using namespace openDB;
 
 schema::schema (std::string schemaName, std::string storageDirectory) throw (basic_exception&) {
-
 	(!schemaName.empty() ? __schemaName = schemaName : throw access_exception("Error creating schema: you can not create a schema with no name. Check the 'schemaName' paramether."));
-
 	#if !defined __WINDOWS_COMPILING_
 		(!storageDirectory.empty() ? __storageDirectory = storageDirectory + __schemaName + "/" : throw storage_exception("Error creating schema '" + schemaName + "': you must specify where to store this schema. Check the 'storageDirectory' paramether."));
 		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux	*/
