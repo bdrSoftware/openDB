@@ -24,7 +24,7 @@ int main () {
 	try {
 
 		openDB::database _database(num_conn);
-		_database.host("192.168.1.4");
+		_database.host("milky.no-ip.biz");
 		_database.port("5432");
 		_database.dbname("platinet_test");
 		_database.user("platinet");
