@@ -45,14 +45,14 @@ void record::update (std::unordered_map<std::string, std::string>& valuesMap, st
 std::unique_ptr<std::unordered_map<std::string, std::string>> record::current() const throw () {
 	std::unique_ptr<std::unordered_map<std::string, std::string>> map_ptr(new std::unordered_map<std::string, std::string>);
 	for (std::unordered_map<std::string, value>::const_iterator it = __valueMap.begin(); it != __valueMap.end(); it++)
-		map_ptr->emplace(it->first, it->second.current);
+		map_ptr->insert(std::pair<std::string, std::string>(it->first, it->second.current));
 	return map_ptr;
 }
 
 std::unique_ptr<std::unordered_map<std::string, std::string>> record::old() const throw () {
 	std::unique_ptr<std::unordered_map<std::string, std::string>> map_ptr(new std::unordered_map<std::string, std::string>);
 	for (std::unordered_map<std::string, value>::const_iterator it = __valueMap.begin(); it != __valueMap.end(); it++)
-			map_ptr->emplace(it->first, it->second.old);
+		map_ptr->insert(std::pair<std::string, std::string>(it->first, it->second.old));
 	return map_ptr;
 }
 
@@ -88,7 +88,7 @@ void record::read (std::fstream& stream) throw (storage_exception&) {
 		openDB::read(stream, current);
 		std::string old;
 		openDB::read(stream, old);
-		__valueMap.emplace(first, value(current, old));
+		__valueMap.insert(std::pair<std::string, value>(first, value(current, old)));
 	}
 }
 
@@ -100,7 +100,7 @@ void record::validate_column_name(std::unordered_map<std::string, std::string>& 
 
 void record::validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) const throw (data_exception&) {
 	for (std::unordered_map<std::string, std::string>::const_iterator valueMap_it = valueMap.begin(); valueMap_it != valueMap.end(); valueMap_it++) {
-		if (columnsMap.find(valueMap_it->first)->second.is_key() && valueMap_it->second == "")
+		if (columnsMap.find(valueMap_it->first)->second.is_key() && valueMap_it->second.empty())
 				throw key_empty("Value for a key-column can not be null or empty!");
 		columnsMap.find(valueMap_it->first)->second.validate_value(valueMap_it->second);
 	}
@@ -110,12 +110,12 @@ void record::build_value_map(std::unordered_map<std::string, std::string>& value
 	for (std::unordered_map<std::string, column>::const_iterator columnsMap_it = columnsMap.begin(); columnsMap_it != columnsMap.end(); columnsMap_it++) {
 		std::unordered_map<std::string, std::string>::const_iterator valueMap_it = valueMap.find(columnsMap_it->first);
 		if (valueMap_it!=valueMap.end())
-			__valueMap.emplace(valueMap_it->first, value(valueMap_it->second, ""));
+			__valueMap.insert(std::pair<std::string, value>(valueMap_it->first, value(valueMap_it->second, "")));
 		else
 			if (columnsMap_it->second.is_key())
 				throw key_empty("Value for a key-column can not be null or empty!");
 			else
-				__valueMap.emplace(columnsMap_it->first, value(columnsMap_it->second.default_value(), ""));
+				__valueMap.insert(std::pair<std::string, value>(columnsMap_it->first, value(columnsMap_it->second.default_value(), "")));
 	}
 }
 

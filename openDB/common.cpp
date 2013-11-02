@@ -12,6 +12,7 @@
 
 #include "common.hpp"
 
+
 std::unique_ptr<std::list <std::string>> openDB::tokenize (std::string _string, char sep) throw () {
 	std::unique_ptr<std::list <std::string>> list_ptr(new std::list <std::string>);
 	std::string token;

@@ -33,7 +33,7 @@ public:
 		 * generata una eccezione di tipo 'schema_exists', derivata da 'access_exception'
 		 */
 		void add_schema(std::string schemaName) throw (schema_exists&)
-			{(find_schema(schemaName) ? throw("Schema '" + schemaName + "' already exists in database.") : __schemasMap.emplace(schemaName, schema(schemaName, __storageDirectory)));}
+			{(find_schema(schemaName) ? throw("Schema '" + schemaName + "' already exists in database.") : __schemasMap.insert(std::pair<std::string, schema>(schemaName, schema(schemaName, __storageDirectory))));}
 
 		/* La funzione restituisce il numero di schemi che compongono il database.
 		 */
@@ -152,11 +152,14 @@ public:
 		void load_structure() throw (basic_exception&);
 		void load_tuple() throw (basic_exception&);
 
-		/* La seguente consente di rendere effettive tutte le modifiche effetuate localmente, eseguendo comandi sql sul database remoto.
+		/* La funzione commit() consente di rendere effettive tutte le modifiche effetuate localmente, eseguendo comandi sql sul database remoto.
 		 * E' bene richiamare la funzione load_tuple al termine delle  operazioni di commit. Restituisce una lista contenente gli id corrispondenti
 		 * ai result generatll'esecuzione delle query.
+		 * La funzione commit_noblock() non blocca l'esecuzione del thread che la chiama ma esegue le query in modo concorrente. E' bene assicurarsi
+		 * che tutte le query siano state eseguite prima di eseguire altre operazioni.
 		 */
 		std::unique_ptr<std::list<unsigned long>> commit() throw (basic_exception&);
+		std::unique_ptr<std::list<unsigned long>> commit_noblock() throw (basic_exception&);
 
 private:
 		std::string									__storageDirectory;		/*	percorso della cartella contenente altre cartelle e file dove sono memorizzate i contenuti degli
@@ -208,17 +211,6 @@ private:
 		};
 		static const key_column_query_field_name key_column_field_name;
 		void define_key(table& key_table);
-
-		static const std::string __referential;
-		struct referential_query_field_name {
-			std::string table_schema;
-			std::string table_name;
-			std::string column_name;
-			std::string referred_table_schema;
-			std::string referred_table_name;
-			std::string referred_column_name;
-		};
-		static const referential_query_field_name referential_field_name;
 
 		dbms __remote_database;
 

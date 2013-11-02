@@ -20,7 +20,7 @@
 /* Il namespace openDB è il namespace del modulo che si occupa dell'astrazione della struttura di un database, della memorizzazione temporanea delle tuple e della generazione di
  * comandi sql da inviare al dbms remoto.
  */
-namespace openDB {	
+namespace openDB {
 
 /* sqlType è il namespace a cui appartengono le classi che fungono da trasposizione, in linguaggio c++, dei principali tipi di dato sql	come boolean per valori booleani, varchar
  * per le stringhe, eccetera.
@@ -28,8 +28,8 @@ namespace openDB {
  * Ultima modifica:			2 settembre 2013
  * Ultimo test di modulo:	2 settembre 2013
  * Esito del test:			negativo, nessun errore riscontrato
- */					 
-namespace sqlType {	
+ */
+namespace sqlType {
 
 /* type_base è la classe base da cui derivano concettualmente tutti i tipi di dato della trasposizione c++ dei tipi sql. Essa è una classe astratta senza attributi e con soltanto
  * due membri virtuali astratti, validate_value e prepare_value, le quali definiscono la firma delle funzioni per la validazione di un valore e la sua preparazione precedente alla
@@ -250,8 +250,8 @@ public:
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return value;}
 private:
-		static const long int min = std::numeric_limits<int>::min();	/*	limite superiore del bound dei valori	*/
-		static const long int max = std::numeric_limits<int>::max();	/*	limite inferiore del bound dei valori	*/
+		static const long int min;	/*	limite superiore del bound dei valori	*/
+		static const long int max;	/*	limite inferiore del bound dei valori	*/
 };
 
 
@@ -272,8 +272,8 @@ public:
 			{return value;}
 
 private:
-		static const long long min = std::numeric_limits<long long>::min();	/*	limite superiore del bound dei valori	*/
-		static const long long max = std::numeric_limits<long long>::max();	/*	limite inferiore del bound dei valori	*/
+		static const long long min;	/*	limite superiore del bound dei valori	*/
+		static const long long max;	/*	limite inferiore del bound dei valori	*/
 };
 
 
@@ -300,9 +300,8 @@ public:
 			{return value;}
 
 private:
-		static constexpr const float min = std::numeric_limits<float>::lowest();	/*	limite superiore del bound dei valori	*/
-		static constexpr const float max = std::numeric_limits<float>::max();		/*	limite inferiore del bound dei valori	*/
-	
+		static const float min;	/*	limite superiore del bound dei valori	*/
+		static const float max;	/*	limite inferiore del bound dei valori	*/
 };
 
 /* Il tipo sql double precision è l'equivalente del long double c++. Si tratta di un numero reale in virgola mobile in doppia precisione, vale a dire con 15 cifre significative
@@ -327,8 +326,8 @@ public:
 			{return value;}
 
 private:
-		static constexpr const long double min = std::numeric_limits<long double>::lowest();	/*	limite superiore del bound dei valori	*/
-		static constexpr const long double max = std::numeric_limits<long double>::max();		/*	limite inferiore del bound dei valori	*/
+		static const long double min;	/*	limite superiore del bound dei valori	*/
+		static const long double max;	/*	limite inferiore del bound dei valori	*/
 };
 
 /* Per il tipo di dato numeric non esiste un equivalente c++. Si tratta di un tipo di dato numerico intero o reale definito dall'utente mediante due parametri, precision e scale,
@@ -346,7 +345,6 @@ public:
 		numeric (unsigned __precision = default_precision, unsigned __scale = default_scale)
 			{(__precision <= max_precision ? precision = __precision : precision = max_precision);
 			(__scale <= max_scale ? scale = __scale : scale = max_scale);}
-			
 
 		/* La funzione validate_value si occupa di verificare che la stringa contenuta in value sia convertibile in un numero intero o reale a seconda della scala impostata e che
 		 * siano rispettati i vincoli su precisione e scala. Se il numero di cifre o il numero di cifre significative eccedesse il limite, viene generata una eccezione del tipo

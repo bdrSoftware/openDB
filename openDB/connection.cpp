@@ -55,9 +55,9 @@ std::unique_ptr<table> connection::exec_query(unsigned long queryID, std::string
 std::unique_ptr<table> connection::process_result(unsigned long queryID, PGresult* pgresult) const throw (basic_exception&){
 	std::unique_ptr<table> table_ptr(new table("table " + std::to_string(queryID), "", true, false));
 	if (PQresultStatus(pgresult) ==  PGRES_COMMAND_OK) { // PGRES_COMMAND_OK is for commands that can never return rows (INSERT, UPDATE, etc.)
-		table_ptr->add_column("result status", new sqlType::varchar());
+		table_ptr->add_column("result", new sqlType::varchar());
 		std::unordered_map<std::string, std::string> tmp;
-		tmp.emplace("result status", std::string(PQresStatus(PGRES_COMMAND_OK)));
+		tmp.insert(std::pair<std::string, std::string>("result", std::string(PQresStatus(PGRES_COMMAND_OK))));
 		table_ptr->load(tmp);
 	}
 	else {
@@ -67,7 +67,7 @@ std::unique_ptr<table> connection::process_result(unsigned long queryID, PGresul
 		for (int row = 0; row < num_tuples(pgresult); row++) { //riempimento delle tuple
 			std::unordered_map<std::string, std::string> tmp;
 			for (int col = 0; col < num_columns(pgresult); col++) //creazione della mappa per l'inserimento di una tupla
-				tmp.emplace(column_name(pgresult, col), value(pgresult, row, col));
+				tmp.insert(std::pair<std::string, std::string>(column_name(pgresult, col), value(pgresult, row, col)));
 			table_ptr->load(tmp);
 		}
 	}

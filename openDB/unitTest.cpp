@@ -17,18 +17,21 @@ using namespace std;
 
 void print_list(const list<string>& _list);
 
+const unsigned num_conn = 5;
+const unsigned num_tuples = 10;
+
 int main () {
 	try {
 
-		openDB::database _database;
+		openDB::database _database(num_conn);
 		_database.host("192.168.1.4");
 		_database.port("5432");
 		_database.dbname("platinet_test");
 		_database.user("platinet");
 		_database.passwd("c0n0gel4t0");
-
+		cout << "Connessione in corso..." <<endl;
 		_database.connect();
-		cout << "Connessione effettuata" <<endl;
+		cout << "Connessione effettuata. " <<num_conn <<" connessioni attive." <<endl;
 		cout << "Inizio caricamento struttura del database..." <<endl;
 		_database.load_structure();
 		cout << "Caricamento struttura del database completata!" <<endl;
@@ -39,7 +42,7 @@ int main () {
 		openDB::table& _table = _database["tipi_dato"]["tabella_varchar"];
 		unique_ptr<list<string>> columns_name = _table.columns_name();
 		cout <<"Comincio la generazione delle tuple per il test" <<endl;
-		const unsigned num_tuples = 5000;
+
 		cout <<"Test effettuato con " <<num_tuples <<" tuple." <<endl;
 		for (unsigned i = 0; i < num_tuples; i++) {
 			unordered_map<string, string> values_map;
@@ -48,15 +51,30 @@ int main () {
 			_table.insert(values_map);
 		}
 		cout <<"Inizio delle operazioni di commit." <<endl;
-		unique_ptr<list<unsigned long>> id_list = _database.commit();
-		cout <<"In attesa del completamento del Commit..." <<endl;
-		for (list<unsigned long>::const_iterator it = id_list->begin(); it != id_list->end(); it++)
+		unique_ptr<list<unsigned long>> id_list = _database.commit_noblock();
+		for (list<unsigned long>::const_iterator it = id_list->begin(); it != id_list->end(); it++) {
+			cout << "In attesa del completamento della query " <<*it <<"...";
 			while(!_database.executed(*it));
+			cout << "Completata! \t";
+			unique_ptr<unordered_map<string, string>> result_map = _database.get_result(*it).current();
+			cout << result_map->find("result")->second <<endl;
+			_database.erase(*it);
+		}
 		cout <<"Commit completato!" <<endl;
 		cout << "Inizio caricamento tuple..." <<endl;
 		_database.load_tuple();
 		cout << "Caricamento tuple completato!" <<endl;
-		_table.to_html("tabella_varchar.html");
+		_table.to_html("/tmp/tabella_varchar.html");
+
+		list<unsigned long> select_list;
+		for (unsigned i = 0; i < num_tuples; i++)
+			select_list.push_back(_database.exec_query_noblock("select * from tipi_dato.tabella_varchar"));
+
+		for (list<unsigned long>::const_iterator it = select_list.begin(); it != select_list.end(); it++) {
+			cout <<"In attesa del completamento della query " <<*it <<"...";
+			while(!_database.executed(*it));
+			cout <<"\tCompletata!" <<endl;
+		}
 	}
 	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}
 }

@@ -14,8 +14,8 @@
 using namespace openDB;
 
 table::table (std::string tableName, std::string storageDirectory, bool managesResult, bool store_on_file) throw (basic_exception&) : __managesResult(managesResult) {
-	( tableName != "" ? __tableName = tableName : throw access_exception("Error creating a table: you can not create a table with no name. Check the 'tableName' paramether."));
-	((store_on_file && storageDirectory == "") ? throw storage_exception("Error creating table '" + tableName + "': you must specify where to store table's rows. Check the 'storageDirectory' paramether.") : __storageDirectory = storageDirectory);
+	(!tableName.empty() ? __tableName = tableName : throw access_exception("Error creating a table: you can not create a table with no name. Check the 'tableName' paramether."));
+	((store_on_file && storageDirectory.empty()) ? throw storage_exception("Error creating table '" + tableName + "': you must specify where to store table's rows. Check the 'storageDirectory' paramether.") : __storageDirectory = storageDirectory);
 	(store_on_file ? __storage = std::unique_ptr<storage>(new file_storage(storageDirectory + __tableName + ".oDB")) : __storage = std::unique_ptr<storage>(new memory_storage));
 }
 

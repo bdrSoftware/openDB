@@ -68,14 +68,14 @@ void dbms::disconnect() throw () {
 
 unsigned long dbms::exec_query(std::string command) throw (basic_exception&) {
 	++queryID;
-	query_map.emplace(queryID, query(command));
+	query_map.insert(std::pair<long unsigned, query>(queryID, query(command)));
 	execute_query(queryID);
 	return queryID;
 }
 
 unsigned long dbms::exec_query_noblock(std::string command) throw (basic_exception&) {
 	++queryID;
-	query_map.emplace(queryID, query(command));
+	query_map.insert(std::pair<unsigned long, query>(queryID, query(command)));
 	std::thread thr(&dbms::execute_query, std::ref(*this), queryID);
 	thr.detach();
 	return queryID;

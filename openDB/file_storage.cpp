@@ -38,12 +38,12 @@ unsigned long file_storage::insert (std::unordered_map<std::string, std::string>
 	record _record(valuesMap, columnsMap, _state);
 	unsigned long free_space = recycle(_record.size());
 	if (free_space == 0)
-		append(_record, __recordMap[__lastKey + 1]);
+		append(_record, __recordMap[__lastKey]);
 	else {
 		__recordMap[__lastKey + 1] = popTrash(free_space, _record.size());
-		write(_record, __recordMap[__lastKey + 1]);
+		write(_record, __recordMap[__lastKey]);
 	}
-	return ++__lastKey;
+	return __lastKey++;
 }
 
 void file_storage::update (unsigned long ID, std::unordered_map<std::string, std::string>& valuesMap, std::unordered_map<std::string, column>& columnsMap) throw (basic_exception&) {

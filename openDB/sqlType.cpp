@@ -81,7 +81,7 @@ date::date_integer date::convert (std::string __value) const throw (data_excepti
 			else											//la data è ambigua.
 				throw ambiguous_value("Ambiguous value for type 'date': " + __value + " is ambiguous.");
 		}
-	}	
+	}
 	catch (std::out_of_range&) {throw invalid_argument("Invalid argument for type 'date': " + __value + " isn't permitted.");}
 	catch (std::invalid_argument&) {throw invalid_argument("Invalid argument for type 'date': " + __value + " isn't permitted.");}
 	return _date;
@@ -168,6 +168,9 @@ void smallint::validate_value(std::string value) const throw(data_exception&) {
 		throw out_of_boud(value + " is out of range for smallint data type.");
 }
 
+const long int integer::min = std::numeric_limits<int>::min();	/*	limite superiore del bound dei valori	*/
+const long int integer::max = std::numeric_limits<int>::max();	/*	limite inferiore del bound dei valori	*/
+
 
 void integer::validate_value(std::string value) const throw(data_exception&) {
 	long _value;
@@ -178,6 +181,9 @@ void integer::validate_value(std::string value) const throw(data_exception&) {
 	if (!(_value >= min && _value <= max))
 		throw out_of_boud(value + " is out of range for integer data type.");
 }
+
+const long long bigint::min = std::numeric_limits<long long>::min();	/*	limite superiore del bound dei valori	*/
+const long long bigint::max = std::numeric_limits<long long>::max();	/*	limite inferiore del bound dei valori	*/
 
 
 void bigint::validate_value(std::string value) const throw(data_exception&) {
@@ -190,6 +196,9 @@ void bigint::validate_value(std::string value) const throw(data_exception&) {
 		throw out_of_boud(value + " is out of range for bigint data type.");
 }
 
+const float real::min = std::numeric_limits<float>::lowest();	/*	limite superiore del bound dei valori	*/
+const float real::max = std::numeric_limits<float>::max();		/*	limite inferiore del bound dei valori	*/
+
 
 void real::validate_value(std::string value) const throw(data_exception&) {
 	float _value;
@@ -201,6 +210,8 @@ void real::validate_value(std::string value) const throw(data_exception&) {
 		throw out_of_boud(value + " is out of range for real data type.");
 }
 
+const long double double_precision::min = std::numeric_limits<long double>::lowest();		/*	limite superiore del bound dei valori	*/
+const long double double_precision::max = std::numeric_limits<long double>::max();		/*	limite inferiore del bound dei valori	*/
 
 void double_precision::validate_value(std::string value) const throw(data_exception&) {
 	long double _value;
@@ -224,11 +235,11 @@ void numeric::validate_value(std::string value) const throw(data_exception&) {
 	if (token_it != token->end())
 		__scale = token_it->size();
 	__precision += __scale;
-	
-	if (__precision > precision) 
+
+	if (__precision > precision)
 		throw out_of_boud(value + " exceeds the allowable precision.");
 
-	if (__scale > scale) 
+	if (__scale > scale)
 		throw out_of_boud(value + " exceeds the allowable scale.");
 }
 

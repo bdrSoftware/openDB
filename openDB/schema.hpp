@@ -40,15 +40,9 @@ public :
 		 * esiste già una tabella con lo stesso nome di quella che si sta tentando di aggiungere, viene generata una eccezione di tipo 'access_exception', derivata di
 		 * basic_exception.
 		 * Se il nome della tabella non viene specificato, viene generata una eccezione di tipo	access_exception.
-		 *
-		 * La seconda versione di add_table, con argomento un oggetto di tipo table, consente l'aggiunta di una tabella già esistente allo schema. In questo caso
-		 * le proprietà della tabella vengono copiate da quella già esistente e viene creata una copia dell'oggetto in modo che, nel caso venga distrutto, non si
-		 * verifichino errori di memoria o perdite di dati.
-		 * Se all'interno dello schema esiste già una tabella con lo stesso nome di quella che si stà aggiungendo, viene generata una eccezione di tipo access_exception.
 		 */
 		void add_table(std::string tableName) throw (basic_exception&)
-			{(find_table(tableName) ? throw table_exists("Table '" + tableName + "' already exists in schema '" + __schemaName + "'") : __tablesMap.emplace(tableName, table(tableName, __storageDirectory)));}
-		void add_table(table& _tableObject) throw (basic_exception&);	//non ancora implementata
+			{(find_table(tableName) ? throw table_exists("Table '" + tableName + "' already exists in schema '" + __schemaName + "'") : __tablesMap.insert(std::pair<std::string, table>(tableName, table(tableName, __storageDirectory))));}
 
 		/*	Restituisce il numero di tabelle che compongono lo schema.
 		 */

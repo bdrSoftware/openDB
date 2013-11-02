@@ -23,10 +23,10 @@ using namespace openDB;
 
 schema::schema (std::string schemaName, std::string storageDirectory) throw (basic_exception&) {
 
-	(schemaName != "" ? __schemaName = schemaName : throw access_exception("Error creating schema: you can not create a schema with no name. Check the 'schemaName' paramether."));
+	(!schemaName.empty() ? __schemaName = schemaName : throw access_exception("Error creating schema: you can not create a schema with no name. Check the 'schemaName' paramether."));
 
 	#if !defined __WINDOWS_COMPILING_
-		(storageDirectory != "" ? __storageDirectory = storageDirectory + __schemaName + "/" : throw storage_exception("Error creating schema '" + schemaName + "': you must specify where to store this schema. Check the 'storageDirectory' paramether."));
+		(!storageDirectory.empty() ? __storageDirectory = storageDirectory + __schemaName + "/" : throw storage_exception("Error creating schema '" + schemaName + "': you must specify where to store this schema. Check the 'storageDirectory' paramether."));
 		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux	*/
 		mkdir(__storageDirectory.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	#else
@@ -34,8 +34,6 @@ schema::schema (std::string schemaName, std::string storageDirectory) throw (bas
 	#endif
 };
 
-
-void schema::add_table(table& _tableObject) throw (basic_exception&) {}
 
 std::unique_ptr<std::list<std::string>> schema::tables_name (bool attach_schema_name) const throw () {
 	std::unique_ptr<std::list <std::string>> list_ptr(new std::list<std::string>);
@@ -108,7 +106,7 @@ std::string schema::load_command(std::string tableName) const throw (table_not_e
 std::unique_ptr<std::unordered_map<std::string, std::string>> schema::load_command() const throw () {
 	std::unique_ptr<std::unordered_map<std::string, std::string>> list_ptr (new std::unordered_map<std::string, std::string>);
 	for (std::unordered_map <std::string, table>::const_iterator it = __tablesMap.begin(); it != __tablesMap.end(); it++)
-		list_ptr->emplace(it->first, load_command(it->first));
+		list_ptr->insert(std::pair<std::string, std::string>(it->first, load_command(it->first)));
 	return list_ptr;
 }
 
@@ -156,7 +154,7 @@ std::string schema::update_sql(std::string tableName, unsigned long ID) const th
 		if (sql_where.empty()) {
 			std::unique_ptr<std::unordered_map<std::string, std::string>> old_value_map_ptr = it->second.old(ID);
 			for (std::unordered_map<std::string, std::string>::const_iterator value_it = old_value_map_ptr->begin(); value_it != old_value_map_ptr->end(); value_it++) {
-				if (sql_where != "")
+				if (!sql_where.empty())
 					sql_where += " and ";
 				sql_where += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}
@@ -184,7 +182,7 @@ std::string schema::delete_sql(std::string tableName, unsigned long ID) const th
 		if (sql_where.empty()) {
 			std::unique_ptr<std::unordered_map<std::string, std::string>> old_value_map_ptr = it->second.old(ID);
 			for (std::unordered_map<std::string, std::string>::const_iterator value_it = old_value_map_ptr->begin(); value_it != old_value_map_ptr->end(); value_it++) {
-				if (sql_where != "")
+				if (!sql_where.empty())
 					sql_where += " and ";
 				sql_where += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}

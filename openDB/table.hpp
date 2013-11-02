@@ -82,7 +82,7 @@ public:
 		 * OCCUPATO DALL'OGGETTO CHE GESTISCE IL TIPO DELLA COLONNA;
 		 */
 		void add_column(std::string columnName,	sqlType::type_base* columnType, bool key = false) throw (column_exists&)
-			{(find_column(columnName) ? throw column_exists("'" + columnName + "' already exists in table'" + __tableName + "'") : __columnsMap.emplace(columnName, column(columnName, columnType, key)));}
+			{(find_column(columnName) ? throw column_exists("'" + columnName + "' already exists in table'" + __tableName + "'") : __columnsMap.insert(std::pair<std::string, column>(columnName, column(columnName, columnType, key))));}
 
 		/* La funzione number_of_columns restituisce un intero senza segno corrispondente al numero di colonne che fanno parte della struttura della tabella.
 		 */
@@ -285,9 +285,9 @@ public:
 		 *		i record;
 		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
 		 */
-		std::unique_ptr<std::unordered_map<std::string, std::string>> current(unsigned long ID) const throw (storage_exception&)
+		std::unique_ptr<std::unordered_map<std::string, std::string>> current(unsigned long ID = 0) const throw (storage_exception&)
 			{return __storage->current(ID);}
-		std::unique_ptr<std::unordered_map<std::string, std::string>> old(unsigned long ID) const throw (storage_exception&)
+		std::unique_ptr<std::unordered_map<std::string, std::string>> old(unsigned long ID = 0) const throw (storage_exception&)
 			{return __storage->old(ID);}
 
 		/* La funzione to_html genera una pagina html molto minimalista, contenente tutte le informazioni gestite dall'oggetto table, organizzate per righe e per colonne.

@@ -19,6 +19,7 @@
 	#define base_path "/tmp/"
 #else
 //#include ??
+	#define base_path "/tmp/"
 #endif
 
 using namespace openDB;
@@ -46,19 +47,9 @@ const database::key_column_query_field_name database::key_column_field_name = {
 		"column_name"
 };
 
-const std::string database::__referential = "select tc.table_schema, tc.table_name, kcu.column_name, ccu.table_schema as referred_table_schema, ccu.table_name as referred_table_name, ccu.column_name as referred_column_name from information_schema.table_constraints tc left join information_schema.key_column_usage kcu ON tc.constraint_catalog = kcu.constraint_catalog AND tc.constraint_schema = kcu.constraint_schema AND tc.constraint_name = kcu.constraint_name left join information_schema.referential_constraints rc ON tc.constraint_catalog = rc.constraint_catalog AND tc.constraint_schema = rc.constraint_schema AND tc.constraint_name = rc.constraint_name left join information_schema.constraint_column_usage ccu ON rc.unique_constraint_catalog = ccu.constraint_catalog AND rc.unique_constraint_schema = ccu.constraint_schema AND rc.unique_constraint_name = ccu.constraint_name where tc.constraint_type = 'FOREIGN KEY'";
-const database::referential_query_field_name database::referential_field_name = {
-		"table_schema",
-		"table_name",
-		"column_name",
-		"referred_table_schema",
-		"referred_table_name",
-		"referred_column_name"
-};
-
 database::database(unsigned _cuncurrend_connection) throw (storage_exception&) : __remote_database(_cuncurrend_connection) {
-	#if !defined __WINDOWS_COMPILING_
-		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux	*/
+	#if !defined __WINDOWS_VERSION
+		/*	codice per la creazione di cartelle dedite alla memorizzazione di schemi e tabelle che compongono il database per sistema operativo linux/unix-like	*/
 		__storageDirectory = base_path + __tmpStorageDirectory + "/";
 		mkdir(__storageDirectory.c_str(),  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		__storageDirectory += std::to_string(getpid()) + "/";
@@ -93,27 +84,19 @@ std::unordered_map<std::string, schema>::iterator database::get_iterator(std::st
 
 void database::load_structure() throw (basic_exception&) {
 	__schemasMap.clear();
-//	unsigned int referential_id = __remote_database.exec_query(__referential);
 	unsigned int key_column_id = __remote_database.exec_query_noblock(__key_column);
 	unsigned int all_column_id = __remote_database.exec_query(__all_column);
 
 	//creazione della struttura del database
 	table& _all_column_table = __remote_database.get_result(all_column_id);
 	create_structure(_all_column_table);
-
+	__remote_database.erase(all_column_id);
 
 	//definizione delle colonne chiave
 	while(!__remote_database.executed(key_column_id)); //attesa completamento query
 	table& _key_column_table = __remote_database.get_result(key_column_id);
 	define_key(_key_column_table);
-
-
-	__remote_database.erase(all_column_id);
 	__remote_database.erase(key_column_id);
-
-//	std::unique_ptr<table> _referential_table = __remote_database.get_result(referential_id);
-
-//	__remote_database.erase(referential_id);
 }
 
 sqlType::type_base* database::column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale) {
@@ -147,6 +130,7 @@ sqlType::type_base* database::column_type(std::string udt_name, std::string char
 		return new sqlType::date;
 	if (udt_name == "time")
 		return new sqlType::time;
+	return 0;
 }
 
 void database::create_structure(table& structure_table) {
@@ -201,6 +185,14 @@ void database::load_tuple() throw (basic_exception&) {
 }
 
 std::unique_ptr<std::list<unsigned long>> database::commit() throw (basic_exception&) {
+	std::unique_ptr<std::list<std::string>> command_list = command_generator();
+	std::unique_ptr<std::list<unsigned long>> id_list(new std::list<unsigned long>);
+	for (std::list<std::string>::const_iterator it = command_list->begin(); it != command_list->end(); it++)
+		id_list->push_back(__remote_database.exec_query(*it));
+	return id_list;
+}
+
+std::unique_ptr<std::list<unsigned long>> database::commit_noblock() throw (basic_exception&) {
 	std::unique_ptr<std::list<std::string>> command_list = command_generator();
 	std::unique_ptr<std::list<unsigned long>> id_list(new std::list<unsigned long>);
 	for (std::list<std::string>::const_iterator it = command_list->begin(); it != command_list->end(); it++)

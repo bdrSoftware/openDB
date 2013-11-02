@@ -22,9 +22,8 @@ std::unique_ptr<std::list<unsigned long>> memory_storage::internalID () const th
 
 unsigned long memory_storage::insert (std::unordered_map<std::string, std::string>& valuesMap, std::unordered_map<std::string, column>& columnsMap, enum record::state _state) throw (basic_exception&) {
 	record _record(valuesMap, columnsMap, _state);
-	__lastKey++;
 	__recordMap.insert(std::pair<unsigned long, record>(__lastKey, _record));
-	return __lastKey;
+	return __lastKey++;
 }
 
 void memory_storage::erase (unsigned long ID) throw (storage_exception&) {
