@@ -18,7 +18,7 @@ using namespace std;
 void print_list(const list<string>& _list);
 
 const unsigned num_conn = 5;
-const unsigned num_tuples = 10;
+const unsigned num_tuples = 50;
 
 int main () {
 	try {
