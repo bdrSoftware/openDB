@@ -12,6 +12,7 @@
 #include "sqlType.hpp"
 #include "common.hpp"
 #include <stdexcept>
+#include <typeinfo>
 using namespace openDB;
 using namespace sqlType;
 
@@ -246,6 +247,107 @@ void numeric::validate_value(std::string value) const throw(data_exception&) {
 
 
 
+
+type_info::type_info()
+	: type_name(), int_min(0), int_max(0), float_min(0), float_max(0), numeric_precision_max(0), numeric_precision_default(0), numeric_scale_max(0), numeric_scale_default(0),
+	  numeric_precision(0), numeric_scale(0), vchar_lenght_max(0), vchar_length_default(0), vchar_length(0) {}
+
+struct openDB::sqlType::type_info boolean::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="boolean";
+	return info;
+}
+
+struct openDB::sqlType::type_info date::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="date";
+	return info;
+}
+
+struct openDB::sqlType::type_info time::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="time";
+	return info;
+}
+
+struct openDB::sqlType::type_info varchar::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="varchar";
+	info.vchar_lenght_max = max_length;
+	info.vchar_length_default = default_length;
+	info.vchar_length = length;
+	return info;
+}
+
+struct openDB::sqlType::type_info character::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="character";
+	info.vchar_lenght_max = max_length;
+	info.vchar_length_default = default_length;
+	info.vchar_length = length;
+	return info;
+}
+
+struct openDB::sqlType::type_info smallint::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="smallint";
+	info.int_max = max;
+	info.int_max = min;
+	return info;
+}
+
+struct openDB::sqlType::type_info integer::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="integer";
+	info.int_max = max;
+	info.int_max = min;
+	return info;
+}
+
+struct openDB::sqlType::type_info bigint::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="bigint";
+	info.int_max = max;
+	info.int_max = min;
+	return info;
+}
+
+struct openDB::sqlType::type_info real::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="real";
+	info.float_max = max;
+	info.float_min = min;
+	return info;
+}
+
+struct openDB::sqlType::type_info double_precision::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="double precision";
+	info.float_max = max;
+	info.float_min = min;
+	return info;
+}
+
+struct openDB::sqlType::type_info numeric::get_type_info() const throw ()
+{
+	type_info info;
+	info.type_name="numeric";
+	info.numeric_precision_default = default_precision;
+	info.numeric_scale_default = default_scale;
+	info.numeric_precision_max = max_precision;
+	info.numeric_scale_max = max_scale;
+	return info;
+}
 
 
 

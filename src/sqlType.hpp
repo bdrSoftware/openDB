@@ -31,6 +31,8 @@ namespace openDB {
  */
 namespace sqlType {
 
+struct type_info;
+
 /* type_base è la classe base da cui derivano concettualmente tutti i tipi di dato della trasposizione c++ dei tipi sql. Essa è una classe astratta senza attributi e con soltanto
  * due membri virtuali astratti, validate_value e prepare_value, le quali definiscono la firma delle funzioni per la validazione di un valore e la sua preparazione precedente alla
  * generazione di un comando sql.
@@ -50,8 +52,29 @@ public:
 		 * La funzione prepare_value viene richiamata solo in fase di creazione di comandi sql, ciò vuol dire che il valore contenuto in value è corretto per ipotesi.
 		 */
 		virtual std::string prepare_value(std::string value) const throw () = 0;
+
+		virtual struct type_info get_type_info() const throw () = 0;
 };
 
+/*
+ */
+struct type_info {
+	std::string type_name;
+	unsigned long int_min;
+	unsigned long int_max;
+	long double float_min;
+	long double float_max;
+	unsigned numeric_precision_max;
+	unsigned numeric_precision_default;
+	unsigned numeric_scale_max;
+	unsigned numeric_scale_default;
+	unsigned numeric_precision;
+	unsigned numeric_scale;
+	unsigned vchar_lenght_max;
+	unsigned vchar_length_default;
+	unsigned vchar_length;
+	type_info();
+};
 
 
 /* Il tipo sql boolean è la trasposizione in sql del tipo bool in c++. Si tratta di un tipo di dato che può assumere solo due valori: true e false.
@@ -68,10 +91,12 @@ public:
 		 */
 		virtual std::string prepare_value(std::string value) const throw ();
 
-private :
+		virtual struct type_info get_type_info() const throw ();
+
+private:
+		static const unsigned value_number = 7; /*Ciascuno dei due valori può essere riconosciuto attraverso 7 diverse stringhe*/
 		static const std::string true_value[];	/*Le stringhe ammesse per rappresentare il valore booleano true sono "TRUE", "t", "true", "y", "yes", "on", "1"*/
 		static const std::string false_value[]; /*Le stringhe ammesse per rappresentare il valore booleano false sono, invece, "FALSE", "f", "false", "n", "no", "off", "0"*/
-		static const unsigned value_number = 7; /*Ciascuno dei due valori può essere riconosciuto attraverso 7 diverse stringhe*/
 };
 
 
@@ -93,6 +118,9 @@ public:
 		 * value viene supposta corretta e semanticamente corrispondente ad una data.
 		 */
 		virtual std::string prepare_value(std::string value) const throw ();
+
+		virtual struct type_info get_type_info() const throw ();
+
 private:
 	/* Per rendere il codice più leggibile, le operazioni di conversione e verifica di una data vengono demandate alle due funzioni seguenti.
 	 * La struttura date_integer serve a contenere una data convertita in formato numerico.
@@ -129,6 +157,8 @@ public:
 		 * hh:mm:ss
 		 */
 		virtual std::string prepare_value(std::string value) const throw ();
+
+		virtual struct type_info get_type_info() const throw ();
 private:
 	/* Per rendere il codice più leggibile, le operazioni di conversione e verifica di un tempo vengono demandate alle due funzioni seguenti.
 	 * La struttura time_integer serve a contenere un tempo convertito in formato numerico.
@@ -171,9 +201,7 @@ public:
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return "'" + value + "'";}
 
-		/*	*/
-		unsigned get_length() const throw ()
-			{return length;}
+		virtual struct type_info get_type_info() const throw ();
 
 private:
 		static const unsigned max_length = 1048576;
@@ -203,9 +231,7 @@ public:
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return "'" + value + "'";}
 
-		/*	*/
-		unsigned get_length() const throw ()
-			{return length;}
+		virtual struct type_info get_type_info() const throw ();
 
 private:
 		static const unsigned max_length = 1048576;
@@ -230,6 +256,8 @@ public:
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return value;}
 
+		virtual struct type_info get_type_info() const throw ();
+
 private:
 		static const int min = -32768;	/*	limite superiore del bound dei valori	*/
 		static const int max = 32767;	/*	limite inferiore del bound dei valori	*/
@@ -249,7 +277,11 @@ public:
 		/*  */
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return value;}
+
+		virtual struct type_info get_type_info() const throw ();
+
 private:
+
 		static const long int min;	/*	limite superiore del bound dei valori	*/
 		static const long int max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -270,6 +302,8 @@ public:
 		 */
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return value;}
+
+		virtual struct type_info get_type_info() const throw ();
 
 private:
 		static const long long min;	/*	limite superiore del bound dei valori	*/
@@ -299,6 +333,8 @@ public:
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return value;}
 
+		virtual struct type_info get_type_info() const throw ();
+
 private:
 		static const float min;	/*	limite superiore del bound dei valori	*/
 		static const float max;	/*	limite inferiore del bound dei valori	*/
@@ -324,6 +360,8 @@ public:
 		 */
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return value;}
+
+		virtual struct type_info get_type_info() const throw ();
 
 private:
 		static const long double min;	/*	limite superiore del bound dei valori	*/
@@ -361,7 +399,10 @@ public:
 		virtual std::string prepare_value(std::string value) const throw ()
 			{return value;}
 
+		virtual struct type_info get_type_info() const throw ();
+
 private:
+		/**/
 		static const unsigned max_precision = 1000;				/*	massimo numero di cifre		*/
 		static const unsigned default_precision = 1000;			/*	numero di cifre di default	*/
 		static const unsigned max_scale = 1000;					/*	numero massimo di cifre significative	*/

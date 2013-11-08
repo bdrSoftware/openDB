@@ -65,6 +65,11 @@ public:
 		std::string name() const throw ()
 			{return __columnName;}
  
+		/* La seguente restituisce una struttura contenente informazioni dettagliate sul tipo della colonna. Vedi header sql
+		 */
+		struct sqlType::type_info get_type_info() const throw()
+			{return __columnType->get_type_info();}
+
 		/* Il compito della funzione validate_value è quello di verificare che un valore, rappresentato dalla stringa value, possa essere tradotto senza errori da un tipo di dato
 		 * sql specifico al suo omologo nella trasposizione in linguaggio c++. Nel caso in cui durante la "traduzione" si verifichi un errore oppure nel caso in cui tale traduzione
 		 * non sia possibile, viene generata una eccezione di tipo data_exception (vedi header exception.hpp) o derivati.

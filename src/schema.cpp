@@ -136,6 +136,7 @@ std::string schema::update_sql(std::string tableName, unsigned long ID) const th
 		std::string sql_value;
 		std::string sql_where;
 		std::unique_ptr<std::unordered_map<std::string, std::string>> value_map_ptr = it->second.current(ID);
+		std::unique_ptr<std::unordered_map<std::string, std::string>> old_map_ptr = it->second.old(ID);
 		for (std::unordered_map<std::string, std::string>::const_iterator value_it = value_map_ptr->begin(); value_it != value_map_ptr->end(); value_it++) {
 			if (it->second.get_column(value_it->first).is_key()) {
 				if (!sql_where.empty())
@@ -143,9 +144,11 @@ std::string schema::update_sql(std::string tableName, unsigned long ID) const th
 				sql_where += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
 			}
 			else {
-				if (!sql_value.empty())
-					sql_value += ", ";
-				sql_value += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+				if (old_map_ptr->find(value_it->first)->second != value_it->second) { //controllo che i valori del record non coincidano prima generare il comando per il loro aggiornamento
+					if (!sql_value.empty())
+						sql_value += ", ";
+					sql_value += value_it -> first + "=" + it->second.get_column(value_it->first).prepare_value(value_it -> second);
+				}
 			}
 		}
 
