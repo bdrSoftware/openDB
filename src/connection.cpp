@@ -53,7 +53,7 @@ std::unique_ptr<table> connection::exec_query(unsigned long queryID, std::string
 
 
 std::unique_ptr<table> connection::process_result(unsigned long queryID, PGresult* pgresult) const throw (basic_exception&){
-	std::unique_ptr<table> table_ptr(new table("table " + std::to_string(queryID), "", true, false));
+	std::unique_ptr<table> table_ptr(new table("table " + std::to_string(queryID), "", 0, true, false));
 	if (PQresultStatus(pgresult) ==  PGRES_COMMAND_OK) { // PGRES_COMMAND_OK is for commands that can never return rows (INSERT, UPDATE, etc.)
 		table_ptr->add_column("result", new sqlType::varchar());
 		std::unordered_map<std::string, std::string> tmp;

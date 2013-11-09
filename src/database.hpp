@@ -33,7 +33,7 @@ public:
 		 * generata una eccezione di tipo 'schema_exists', derivata da 'access_exception'
 		 */
 		void add_schema(std::string schemaName) throw (schema_exists&)
-			{(find_schema(schemaName) ? throw("Schema '" + schemaName + "' already exists in database.") : __schemasMap.insert(std::pair<std::string, schema>(schemaName, schema(schemaName, __storageDirectory))));}
+			{(find_schema(schemaName) ? throw("Schema '" + schemaName + "' already exists in database.") : __schemasMap.insert(std::pair<std::string, schema>(schemaName, schema(schemaName, __storageDirectory, this))));}
 
 		/* La funzione restituisce il numero di schemi che compongono il database.
 		 */
@@ -197,7 +197,6 @@ private:
 			std::string numeric_precision;
 			std::string numeric_scale;
 			std::string datetime_precision;
-			std::string column_default;
 		};
 		static const all_column_query_field_name all_column_field_name;
 		sqlType::type_base* column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale);

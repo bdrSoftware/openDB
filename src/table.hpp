@@ -21,6 +21,8 @@
 #include <unordered_map>
 
 namespace openDB {
+
+class schema;
 /* Un oggetto di tipo table, oltre che un insieme di oggetti di tipo column, ognuno dei qualli contiene le proprietà di un insieme di valori semanticamente
  * affini, si occupa, anche se indirettamente, della loro memorizzazione e gestione.
  * Questo oggetto introduce, a livello concettuale, il concetto di riga, definendo metodologie per l'inserimento, la modifica, la cancellazione remota e
@@ -37,13 +39,14 @@ public:
 		 * 					   storage_exception, derivata di basic_exception.
 		 *
 		 * Altri parametri opzionali sono:
+		 * - parent: puntatore all'oggetto schema a cui table appartiene. Vedi header schema.hpp.
 		 * - managesResult: deve essere impostato a true nel caso in cui l'oggetto in essere deve essere destinato alla memorizzazione di informazioni generate
 		 * 					a seguito di una interrogazione al DBMS. In questo modo, operazioni di inserimento, modifica o cancellazione, che sarebbero prive di
 		 * 					senso su una tabella di questo tipo, vengono evitate.
 		 * - store_on_file: di default è true, in questo caso le righe gestite dalla tabella vengono memorizzate su file. Nel caso in cui sia false, si può
 		 * 					evitare di specificare un valore per il parametro storageDirectory
 		 */
-		table (std::string tableName, std::string storageDirectory, bool managesResult = false, bool store_on_file = true) throw (basic_exception&);
+		table (std::string tableName, std::string storageDirectory, schema* parent = 0, bool managesResult = false, bool store_on_file = true) throw (basic_exception&);
 
 		/* Questa funzione restituisce il nome di una tabella. Il nome di ogni tabella all'interno di uno stesso schema dovrebbe essere univoco (vedi oggetto
 		 * schema, definito in schema.hpp) perché usato per l'accesso ad esse.
@@ -82,7 +85,7 @@ public:
 		 * OCCUPATO DALL'OGGETTO CHE GESTISCE IL TIPO DELLA COLONNA;
 		 */
 		void add_column(std::string columnName,	sqlType::type_base* columnType, bool key = false) throw (column_exists&)
-			{(find_column(columnName) ? throw column_exists("'" + columnName + "' already exists in table'" + __tableName + "'") : __columnsMap.insert(std::pair<std::string, column>(columnName, column(columnName, columnType, key))));}
+			{(find_column(columnName) ? throw column_exists("'" + columnName + "' already exists in table'" + __tableName + "'") : __columnsMap.insert(std::pair<std::string, column>(columnName, column(columnName, columnType, this, key))));}
 
 		/* La funzione number_of_columns restituisce un intero senza segno corrispondente al numero di colonne che fanno parte della struttura della tabella.
 		 */
@@ -304,10 +307,15 @@ public:
 		 *  - io_error : eccezione derivata da storage_exception, viene generata se la dimensione dei dati scritti-letti non coincide con la dimensione del record.
 		 */
 		void to_html(std::string fileName, bool print_row = true, std::string bgcolor="#e6e6e6") const throw (storage_exception&);
-private:
 
+		/**/
+		schema* get_parent() const throw()
+			{return __parent;}
+
+private:
 		std::string									__tableName;			/*	nome della tabella		*/
 		std::string									__storageDirectory;		/*	percorso della cartella contenente il file dove sono memorizzate tutte le tuple della tabella	*/
+		schema* __parent; /*	puntatore allo schema cui la tabella appartiene	*/
 		bool										__managesResult;		/*	se la tabella gestisce il risultato di esecuzione di una query, questo attributo è true	*/
 		std::unordered_map<std::string, column>		__columnsMap;			/*	mappa delle colonne che compongono la tabella
 																			 *	Le colonne vengono organizzate in una struttura di tipo 'unordered_map', ossia un contenitore di tipo

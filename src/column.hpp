@@ -19,14 +19,13 @@
 #include "exception.hpp"
 
 namespace openDB {
+
+class table;
+
 /* L'oggetto column astrae il concetto di colonna. Il punto di vista che bisogna tenere guardando questo oggetto noe' quello di colonna visto come
  * insieme di valori, ma come insiame di valori con le stesse proprieta'. Questo oggetto, infatti, non conserva nessun valore relativo alla colonna,
  * ma soltanto le sue proprieta', come il nome, il tipo, e l'uso che si fa deli valori contenuti nela colonna quando vengono generate query sql di
  * interrogazione al database.
- *
- * Ultima modifica:			4 settembre 2013
- * Ultimo test di modulo:	5 settembre 2013
- * Esito del test:			negativo, nessun errore riscontrato
  */
 class column {
 public:
@@ -36,14 +35,15 @@ public:
 		 * 			column _column("colonna", new sqlType::varchar(10));
 		 * 	 per costruire una colonna di tipo boolean, invece
 		 * 			column _column("colonna", new sqlType::boolean);
+		 * - parent: puntatore alla tabella "padre" della colonna, ossia che la contiene. va usato solo quando la colonna fa parte di un oggetto table (vedi
+		 *	  	header table.hpp)
 		 * - key : se questo paramentro assume valore true, allora vuol dire che la colonna compone la chiave per la tabella a cui appartiene. È previsto
 		 * 		   un controllo sulle colonne chiave: quando si valida un valore con la funzione validate_value (vedi sotto), essa genera una eccezione di
 		 * 		   tipo key_empty, derivata di data_exception, se la stringa che si passa alla funzione è vuota.
-		 *
 		 *  LA SEGUENTE SITUAZIONE È DA EVITARE
 		 * 		openDB::sqlType::type_base* base_ptr = new openDB::sqlType::boolean;
 		 *		{
-		 *		openDB::column _column("colonna", base_ptr, true);
+		 *		openDB::column _column("colonna", base_ptr, parent, true);
 		 *		try {_column.validate_value("");}
 		 *		catch(openDB::data_exception& e) {cout <<e.what() <<endl;}
 		 *		}
@@ -52,11 +52,11 @@ public:
 		 * 	ESEGUENDO QUESTO CODICE VIENE GENERATO ERRORE DI SEGMENTAZIONE. È UNA COSA VOLUTA. IL DISTRUTTORE DI COLUMN DEALLOCA AUTOMATICAMENTE LO SPAZIO
 		 * OCCUPATO DALL'OGGETTO PUNTATO DAL MEMBRO __columnType;
 		 */
-		column (std::string columnName,	sqlType::type_base* columnType, bool key = false, std::string defaultValue = "")	throw () :
+		column (std::string columnName,	sqlType::type_base* columnType, table* parent, bool key = false) throw () :
 			__columnName(columnName),
 			__columnType(columnType),
-			__isKey(key),
-			__defaultValue(defaultValue)
+			__parent(parent),
+			__isKey(key)
 			{}
 
 		/* Questa funzione restituisce il nome di una colonna. Il nome di ogni colonna all'interno di una stessa tabella dovrebbe essere univoco (vedi oggetto
@@ -64,7 +64,7 @@ public:
 		 */
 		std::string name() const throw ()
 			{return __columnName;}
- 
+
 		/* La seguente restituisce una struttura contenente informazioni dettagliate sul tipo della colonna. Vedi header sql
 		 */
 		struct sqlType::type_info get_type_info() const throw()
@@ -118,22 +118,16 @@ public:
 		const query_attribute& get_attribute () const throw ()
 			{return __query_attribute;}
 
-		/* La funzione default value con argomendi tipo stringa, consente di impostare il valore di default. Il valore di default viene utilizzato in fase di inserimento di una
-		 * riga in una tabella (vedi oggetto di tipo table, header table.hpp).
-		 * La versione senza argomenti restituisce il valore di default precedentemente impostato.
-		 */
-		void default_value(std::string defaultValue) throw ()
-			{__defaultValue = defaultValue;}
-		std::string default_value() const throw ()
-			{return __defaultValue;}
+		/*	Restituisce un puntatore all'oggetto table a cui l'oggetto colonna appartiene	*/
+		table* get_parent() const throw ()
+			{return __parent;}
 
 private:
 		std::string								__columnName;			/*	nome della colonna	*/
 		std::unique_ptr<sqlType::type_base>		__columnType;			/*	tipo della colonna	*/
+		table*									__parent;				/*	puntatore alla tabella che contiene l'oggetto colonna in essere	*/
 		bool									__isKey;				/*	se la colonna è chiave, o concorre alla formazione della chiave, questo attributo è true	*/
-		std::string								__defaultValue;			/*	valore di default per la colonna	*/
 		query_attribute							__query_attribute;		/*	attributi aggiuntivi relativi all'utilizzo della colonna durante le query di interrogazione al DBMS	*/
-
 };	/*	end of column class	*/
 };	/*	end of openDB namespace	*/
 #endif

@@ -27,7 +27,7 @@ using namespace openDB;
 
 const std::string database::__tmpStorageDirectory = "platinet";
 
-const std::string database::__all_column = "select col.table_schema,col.table_name,col.column_name,col.udt_name,col.character_maximum_length,col.numeric_precision,col.numeric_scale,col.datetime_precision,col.column_default from information_schema.columns col where col.table_schema not in('pg_catalog', 'information_schema') order by col.table_schema, col.table_name, col.ordinal_position desc";
+const std::string database::__all_column = "select col.table_schema,col.table_name,col.column_name,col.udt_name,col.character_maximum_length,col.numeric_precision,col.numeric_scale,col.datetime_precision from information_schema.columns col where col.table_schema not in('pg_catalog', 'information_schema') order by col.table_schema, col.table_name, col.ordinal_position desc";
 const database::all_column_query_field_name database::all_column_field_name = {
 		"table_schema",
 		"table_name",
@@ -37,7 +37,6 @@ const database::all_column_query_field_name database::all_column_field_name = {
 		"numeric_precision",
 		"numeric_scale",
 		"datetime_precision",
-		"column_default"
 };
 
 const std::string database::__key_column = "select col.table_schema, col.table_name, col.column_name from information_schema.columns col join information_schema.constraint_column_usage ccl on col.table_schema=ccl.table_schema and col.table_name=ccl.table_name and col.column_name=ccl.column_name join information_schema.table_constraints ts on ccl.constraint_name=ts.constraint_name where ts.constraint_type = 'PRIMARY KEY' and col.table_schema not in ('pg_catalog','information_schema')";
@@ -145,7 +144,6 @@ void database::create_structure(table& structure_table) {
 		std::string numeric_precision = tuple->find(all_column_field_name.numeric_precision)->second;
 		std::string numeric_scale = tuple->find(all_column_field_name.numeric_scale)->second;
 		sqlType::type_base* type = column_type(udt_name, character_maximum, numeric_precision, numeric_scale);
-		std::string default_value = tuple->find(all_column_field_name.column_default)->second;
 
 		if (!find_schema(schema_name))
 			add_schema(schema_name);

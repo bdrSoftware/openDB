@@ -15,6 +15,8 @@
 #include "table.hpp"
 
 namespace openDB {
+class database;
+
 /* Un oggetto di tipo schema, astrae e riproduce il concetto di schema ER di un database. Esso, cioè, è un insieme di tabelle semanticamente affini.
  * Si pensi a tutte le tabelle che gestiscono informazioni riguardo ai pazienti di un ospedale, ad esempio "anagrafica_pazienti" e "cartelle_cliniche":
  * tali tabelle potrebbero essere "raggruppate" logicamente all'interno dello schema "pazienti".
@@ -27,8 +29,9 @@ public :
 		 * 				  'basic_exception';
 		 *  - storageDirectory: il percorso dove viene creato l'albero di directory preposto alla memorizzazione delle tuple gestire dalle tabelle che compongono
 		 * 						lo schema. Se non viene specificato viene generata una eccezione di tipo 'storage_exception', derivata di 'basic_exception'.
+		 * - parent: puntatore al database 'padre', ossia l'oddetto database che contiene lo schema.
 		 */
-		schema (std::string schemaName, std::string storageDirectory) throw (basic_exception&);
+		schema (std::string schemaName, std::string storageDirectory, database* parent = 0) throw (basic_exception&);
 
 		/* Questa funzione restituisce il nome di uno schema. Il nome di ogni schema all'interno di uno stesso database deve essere univoco (vedi oggetto
 		 * database, definito in database.hpp) perché usato per l'accesso ad esse.
@@ -42,7 +45,7 @@ public :
 		 * Se il nome della tabella non viene specificato, viene generata una eccezione di tipo	access_exception.
 		 */
 		void add_table(std::string tableName) throw (basic_exception&)
-			{(find_table(tableName) ? throw table_exists("Table '" + tableName + "' already exists in schema '" + __schemaName + "'") : __tablesMap.insert(std::pair<std::string, table>(tableName, table(tableName, __storageDirectory))));}
+			{(find_table(tableName) ? throw table_exists("Table '" + tableName + "' already exists in schema '" + __schemaName + "'") : __tablesMap.insert(std::pair<std::string, table>(tableName, table(tableName, __storageDirectory, this))));}
 
 		/*	Restituisce il numero di tabelle che compongono lo schema.
 		 */
@@ -91,6 +94,9 @@ public :
 		 */
 		std::unique_ptr<std::list<std::string>> commit() const throw ();
 
+		/**/
+		database* get_parent() const throw()
+			{return __parent;}
 private :
 		std::string 								__schemaName;			/*	nome dello schema. Deve essere univoco all'interno di uno stesso database perchè usato dalle
 																			 * 	funzioni di accesso dell'oggetto database (vedi header database.hpp)
@@ -98,6 +104,7 @@ private :
 		std::string									__storageDirectory;		/*	percorso della cartella contenente i file dove sono memorizzate tutte le tuple delle tabelle che
 																			 * 	compongono la struttura dello schema
 																			 */
+		database* __parent; /*	puntatore al database contenente lo schema 	*/
 		std::unordered_map<std::string, table>		__tablesMap;			/*	mappa delle tabelle che compongono lo schema
 																			 *	Le tabelle vengono organizzate in una struttura di tipo 'unordered_map', ossia un contenitore di tipo
 																			 *  associativo che consente di accedere a qualsiasi posizione in tempo costante. Le chiavi di accesso a

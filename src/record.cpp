@@ -114,8 +114,6 @@ void record::build_value_map(std::unordered_map<std::string, std::string>& value
 		else
 			if (columnsMap_it->second.is_key())
 				throw key_empty("Value for a key-column can not be null or empty!");
-			else
-				__valueMap.insert(std::pair<std::string, value>(columnsMap_it->first, value(columnsMap_it->second.default_value(), "")));
 	}
 }
 
