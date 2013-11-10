@@ -75,6 +75,8 @@ int main () {
 			while(!_database.executed(*it));
 			cout <<"\tCompletata!" <<endl;
 		}
+		
+		_database["tipi_dato"]["tabella_tipi_dato"].to_html("/tmp/tabella_tipi_dato.html");
 	}
 	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}
 }
