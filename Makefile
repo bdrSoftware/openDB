@@ -10,20 +10,26 @@ BIN_DIR = ./bin/
 HEADER_DIR = /usr/include/openDB/
 LIBRARY_DIR = /usr/lib/
 
-.PHONY: openDB clean install uninstall
-
 OBJ = $(OBJ_DIR)common.o $(OBJ_DIR)sqlType.o $(OBJ_DIR)queryAttribute.o $(OBJ_DIR)column.o $(OBJ_DIR)record.o $(OBJ_DIR)memory_storage.o $(OBJ_DIR)file_storage.o $(OBJ_DIR)table.o $(OBJ_DIR)schema.o $(OBJ_DIR)connection.o $(OBJ_DIR)dbms.o $(OBJ_DIR)database.o
 
-openDB : $(LIB_DEST)libopenDB.so $(LIB_DEST)libopenDB.a
+.PHONY: openDB clean install uninstall
+
+openDB : $(OBJ_DIR) $(BIN_DIR) $(LIB_DEST)libopenDB.so $(LIB_DEST)libopenDB.a
+
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
 
 clean :
-	rm -f $(LIB_DEST)libopenDB.so $(LIB_DEST)libopenDB.a $(OBJ) $(BIN_DIR)unitTest.o $(BIN_DIR)unitTest
+	rm -rf $(LIB_DEST)libopenDB.so $(LIB_DEST)libopenDB.a $(OBJ) $(BIN_DIR)unitTest.o $(BIN_DIR)unitTest $(OBJ_DIR) $(BIN_DIR)
 
 install: openDB
 	mkdir -p $(HEADER_DIR)
 	mkdir -p $(HEADER_DIR)src/
 	cp -f openDB.hpp $(HEADER_DIR)
-	cp -f SRC_DIR*.hpp $(HEADER_DIR)src/
+	cp -f $(SRC_DIR)*.hpp $(HEADER_DIR)src/
 	cp -t $(LIBRARY_DIR) $(LIB_DEST)libopenDB.so $(LIB_DEST)libopenDB.a
 	
 uninstall:
