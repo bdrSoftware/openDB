@@ -109,7 +109,7 @@ private:
 	bool												__visible;
 
 	void validate_column_name(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) const throw (column_not_exists&);
-	void validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) const throw (data_exception&);
+	void validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (data_exception&);
 	void build_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (key_empty&);
 	void update_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw ();
 

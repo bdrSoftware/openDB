@@ -12,6 +12,7 @@
 #ifndef __OPENDB_SQLTYPE_HEADER__
 #define __OPENDB_SQLTYPE_HEADER__
 
+#include <list>
 #include <string>
 #include <limits>
 #include "exception.hpp"
@@ -45,7 +46,7 @@ public:
 		 * sql specifico al suo omologo nella trasposizione in linguaggio c++. Nel caso in cui durante la "traduzione" si verifichi un errore oppure nel caso in cui tale traduzione
 		 * non sia possibile, viene generata una eccezione di tipo data_exception (vedi header exception.hpp) o derivati.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&) = 0;
+		virtual std::string validate_value(std::string value) const throw(data_exception&) = 0;
 
 		/* Il compito della funzione prepare_value è quello di preparare un valore in modo che esso possa essere parte di un comando sql di inserimento, modifica, cancellazione o
 		 * selezione. Ad esempio, per una stringa di tipo varchar, vengono aggiunti gli apici ad inizio e fine del file e vengono "escaped" i caratteri che devono esserlo.
@@ -60,18 +61,8 @@ public:
  */
 struct type_info {
 	std::string type_name;
-	unsigned long int_min;
-	unsigned long int_max;
-	long double float_min;
-	long double float_max;
-	unsigned numeric_precision_max;
-	unsigned numeric_precision_default;
-	unsigned numeric_scale_max;
-	unsigned numeric_scale_default;
 	unsigned numeric_precision;
 	unsigned numeric_scale;
-	unsigned vchar_lenght_max;
-	unsigned vchar_length_default;
 	unsigned vchar_length;
 	type_info();
 };
@@ -85,7 +76,7 @@ public:
 		 * 14 valori ammessi per rappresentare uno dei due stati logici booleani. Se il valore contenuto in value non corrisponde a nessuno di essi, viene generata una eccezione di
 		 * tipo "invalid_argument", derivata di data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value restituisce una stringa contenente "TRUE" nel caso in cui il valore logico booleano sia true, "FALSE" nel caso contrario.
 		 */
@@ -93,10 +84,11 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
-		static const unsigned value_number = 7; /*Ciascuno dei due valori può essere riconosciuto attraverso 7 diverse stringhe*/
-		static const std::string true_value[];	/*Le stringhe ammesse per rappresentare il valore booleano true sono "TRUE", "t", "true", "y", "yes", "on", "1"*/
-		static const std::string false_value[]; /*Le stringhe ammesse per rappresentare il valore booleano false sono, invece, "FALSE", "f", "false", "n", "no", "off", "0"*/
+		static const std::string type_name;
+		static const std::string true_default;
+		static const std::string false_default;
+		static const std::list<std::string> true_value;	/*Le stringhe ammesse per rappresentare il valore booleano true sono "TRUE", "t", "true", "y", "yes", "on", "1"*/
+		static const std::list<std::string> false_value; /*Le stringhe ammesse per rappresentare il valore booleano false sono, invece, "FALSE", "f", "false", "n", "no", "off", "0"*/
 };
 
 
@@ -112,15 +104,19 @@ public:
 		 * Nel caso in cui la stringa sia scomponibile ma la sua scomposizione risulta ambigua (si pensi a yy/mm/dd o dd/mm/yy) viene generata una eccezione di tipo ambiguous_value
 		 * mentre nel caso in cui la scomposizione sia
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value restituisce una data in formato 'yyyy-mm-dd'. La funzione viene chiamata solo dopo la validazione della data, per cui la stringa contenuta in
 		 * value viene supposta corretta e semanticamente corrispondente ad una data.
 		 */
-		virtual std::string prepare_value(std::string value) const throw ();
+		virtual std::string prepare_value(std::string value) const throw ()
+			{return "'" + value + "'";}
 
 		virtual struct type_info get_type_info() const throw ();
 
+		static const std::string type_name;
+		static const std::string separator;
+		static const std::string qt4_format;
 private:
 	/* Per rendere il codice più leggibile, le operazioni di conversione e verifica di una data vengono demandate alle due funzioni seguenti.
 	 * La struttura date_integer serve a contenere una data convertita in formato numerico.
@@ -151,14 +147,19 @@ public:
 		 * viene generata una eccezione di tipo invalid_argument, derivata di data_exception. Nel caso in cui la conversione fosse possibile, ma il tempo che si ottiene non è valido
 		 * allora viene generata una eccezione di tipo invalid_time, sempre derivata da data_exception
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value per il tipo time, chiamata su un oggetto value il cui contenuto è già stato validato, restituisce una stringa contenente il tempo in formato
 		 * hh:mm:ss
 		 */
-		virtual std::string prepare_value(std::string value) const throw ();
+		virtual std::string prepare_value(std::string value) const throw ()
+			{return "'" + value + "'";}
 
 		virtual struct type_info get_type_info() const throw ();
+
+		static const std::string type_name;
+		static const std::string separator;
+		static const std::string qt4_format;
 private:
 	/* Per rendere il codice più leggibile, le operazioni di conversione e verifica di un tempo vengono demandate alle due funzioni seguenti.
 	 * La struttura time_integer serve a contenere un tempo convertito in formato numerico.
@@ -192,8 +193,8 @@ public:
 		/* Nel caso in cui la lunghezza della stringa contenuta in value ecceda la lunghezza consentita, la funzione validate_value genera una eccezione di tipo value_too_long,
 		 * derivata da data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&)
-			{if (value.size() > length) throw value_too_long(value + " is too long for character(" + std::to_string(length) + ").");}
+		virtual std::string validate_value(std::string value) const throw(data_exception&)
+			{if (value.size() > length) throw value_too_long(value + " is too long for character(" + std::to_string(length) + ")."); return value;}
 
 		/* L'unica operazione effettuata da prepare_value è aggiungere i single-quote all'inizio ed alla fine della stringa. Come nel caso degli altri tipi, questa funzione va chiamata
 		 * soltanto dopo aver validato il valore.
@@ -203,9 +204,11 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
+		static const std::string type_name;
 		static const unsigned max_length = 1048576;
 		static const unsigned default_length = 1;
+
+private:
 		unsigned length;
 };
 
@@ -222,8 +225,8 @@ public:
 		/* Nel caso in cui la lunghezza della stringa contenuta in value ecceda la lunghezza consentita, la funzione validate_value genera una eccezione di tipo value_too_long,
 		 * derivata da data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&)
-			{if (value.size() > length) throw value_too_long(value + " is too long for varchar(" + std::to_string(length) + ").");}
+		virtual std::string validate_value(std::string value) const throw(data_exception&)
+			{if (value.size() > length) throw value_too_long(value + " is too long for varchar(" + std::to_string(length) + ")."); return value;}
 
 		/* L'unica operazione effettuata da prepare_value è aggiungere i single-quote all'inizio ed alla fine della stringa. Come nel caso degli altri tipi, questa funzione va chiamata
 		 * soltanto dopo aver validato il valore.
@@ -233,9 +236,11 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
+		static const std::string type_name;
 		static const unsigned max_length = 1048576;
 		static const unsigned default_length = 1048576;
+
+private:
 		unsigned length;
 };
 
@@ -248,7 +253,7 @@ public:
 		 * eccezione del tipo invalid_argument. Nel caso la conversione sia possibile ma il valore che si ottiene è fuori dal range di valori per questo tipo, viene generata una
 		 * eccezione del tipo out_of_bound. Entrambi i tipi di eccezione sono derivati dal tipo data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value chiamata su un oggetto di questo tipo, sempre successivamente alla validazione, restituisce la stringa così com'è in quanto non è necessaria
 		 * nessuna operazione di preparazione
@@ -258,7 +263,7 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
+		static const std::string type_name;
 		static const int min = -32768;	/*	limite superiore del bound dei valori	*/
 		static const int max = 32767;	/*	limite inferiore del bound dei valori	*/
 };
@@ -272,7 +277,7 @@ public:
 		 * eccezione del tipo invalid_argument. Nel caso la conversione sia possibile ma il valore che si ottiene è fuori dal range di valori per questo tipo, viene generata una
 		 * eccezione del tipo out_of_bound. Entrambi i tipi di eccezione sono derivati dal tipo data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/*  */
 		virtual std::string prepare_value(std::string value) const throw ()
@@ -280,8 +285,7 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
-
+		static const std::string type_name;
 		static const long int min;	/*	limite superiore del bound dei valori	*/
 		static const long int max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -295,7 +299,7 @@ public:
 		 * eccezione del tipo invalid_argument. Nel caso la conversione sia possibile ma il valore che si ottiene è fuori dal range di valori per questo tipo, viene generata una
 		 * eccezione del tipo out_of_bound. Entrambi i tipi di eccezione sono derivati dal tipo data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value chiamata su un oggetto di questo tipo, sempre successivamente alla validazione, restituisce la stringa così com'è in quanto non è necessaria
 		 * nessuna operazione di preparazione
@@ -305,7 +309,7 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
+		static const std::string type_name;
 		static const long long min;	/*	limite superiore del bound dei valori	*/
 		static const long long max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -317,7 +321,7 @@ private:
  * Si tratta di un tipo di dato "inesatto", nel senso che un numero di questo tipo non sempre viene espresso esattamente: potrebbe accadere, infatti, che un numero venga approssimato
  * al numero reale che minimizza la differenza ed è rappresentabile con lo stesso numero di bit per mantissa ed esponente.
  * Il massimo errore che si commette durante l'approssimazione varia da implementazione ad implementazione ma può sempre essere ottenuto mediante la funzione
- * std::numeric_limits<long double>::epsilon(), definita in <limits>. 
+ * std::numeric_limits<long double>::epsilon(), definita in <limits>.
  */
 class real : public type_base {
 public:
@@ -325,7 +329,7 @@ public:
 		 * eccezione del tipo invalid_argument. Nel caso la conversione sia possibile ma il valore che si ottiene è fuori dal range di valori per questo tipo, viene generata una
 		 * eccezione del tipo out_of_bound. Entrambi i tipi di eccezione sono derivati dal tipo data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value chiamata su un oggetto di questo tipo, sempre successivamente alla validazione, restituisce la stringa così com'è in quanto non è necessaria
 		 * nessuna operazione di preparazione
@@ -335,7 +339,7 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
+		static const std::string type_name;
 		static const float min;	/*	limite superiore del bound dei valori	*/
 		static const float max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -353,7 +357,7 @@ public:
 		 * eccezione del tipo invalid_argument. Nel caso la conversione sia possibile ma il valore che si ottiene è fuori dal range di valori per questo tipo, viene generata una
 		 * eccezione del tipo out_of_bound. Entrambi i tipi di eccezione sono derivati dal tipo data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value chiamata su un oggetto di questo tipo, sempre successivamente alla validazione, restituisce la stringa così com'è in quanto non è necessaria
 		 * nessuna operazione di preparazione
@@ -363,14 +367,14 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
+		static const std::string type_name;
 		static const long double min;	/*	limite superiore del bound dei valori	*/
 		static const long double max;	/*	limite inferiore del bound dei valori	*/
 };
 
 /* Per il tipo di dato numeric non esiste un equivalente c++. Si tratta di un tipo di dato numerico intero o reale definito dall'utente mediante due parametri, precision e scale,
  * il cui significato viene spiegato nel prossimo blocco di commento.
- * Il tipo numeric è un tipo di dato "esatto", vale a dire che non vi è nessun tipo di approssimazione. 
+ * Il tipo numeric è un tipo di dato "esatto", vale a dire che non vi è nessun tipo di approssimazione.
  */
 class numeric : public type_base {
 public:
@@ -391,7 +395,7 @@ public:
 		 * Nel caso la conversione sia possibile ma il valore che si ottiene è fuori dal range di valori per double precision, viene generata una eccezione del tipo out_of_bound.
 		 * Entrambi i tipi di eccezione sono derivati dal tipo data_exception.
 		 */
-		virtual void validate_value(std::string value) const throw(data_exception&);
+		virtual std::string validate_value(std::string value) const throw(data_exception&);
 
 		/* La funzione prepare_value chiamata su un oggetto di questo tipo, sempre successivamente alla validazione, restituisce la stringa così com'è in quanto non è necessaria
 		 * nessuna operazione di preparazione
@@ -401,12 +405,13 @@ public:
 
 		virtual struct type_info get_type_info() const throw ();
 
-private:
-		/**/
+		static const std::string type_name;
 		static const unsigned max_precision = 1000;				/*	massimo numero di cifre		*/
 		static const unsigned default_precision = 1000;			/*	numero di cifre di default	*/
 		static const unsigned max_scale = 1000;					/*	numero massimo di cifre significative	*/
 		static const unsigned default_scale = 0;				/*	numero di cifre significative di default	*/
+
+private:
 		unsigned precision;										/*	massimo numero di cifre	impostato	*/
 		unsigned scale;											/*	massimo numero di cifre	significative impostato	*/
 };

@@ -38,6 +38,31 @@ std::unique_ptr<std::list <std::string>> openDB::tokenize (std::string _string, 
 	return list_ptr;
 }
 
+std::unique_ptr<std::list <std::string>> openDB::tokenize (std::string _string, std::string sep) throw () {
+	std::unique_ptr<std::list <std::string>> list_ptr(new std::list <std::string>);
+	std::string token;
+	bool finished = false;
+	std::size_t tabPos = 0;
+	do {
+		tabPos = _string.find_first_of(sep, 0);
+		switch (tabPos) {
+		case std::string::npos:
+			token = _string;
+			finished = true;
+			break;
+		case 0 :
+			token = "";
+			_string.erase(0, 1);
+			break;
+		default:
+			token = _string.substr(0, tabPos);
+			_string.erase(0, tabPos + 1);
+		}
+		list_ptr-> push_back(token);
+	} while(!finished);
+	return list_ptr;
+}
+
 void openDB::write (std::fstream& stream, const std::string& _string) throw () {
 	unsigned length;
 	length = _string.size();

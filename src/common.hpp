@@ -24,6 +24,7 @@ namespace openDB {
  * La stringa "scemo.cretino", ad esempio, divisa usando il carattere '.', viene divisa nelle stringhe {"scemo", "cretino"}.
  */
 std::unique_ptr<std::list <std::string>> tokenize (std::string _string, char sep) throw ();
+std::unique_ptr<std::list <std::string>> tokenize (std::string _string, std::string sep) throw ();
 
 /*
  */

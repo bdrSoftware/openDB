@@ -87,9 +87,10 @@ public:
 		 * - out_of_bound : se la colonna è di un tipo numerico intero (smallint, integer o bigint) o in virgola mobile (float o double precision) o numeric e il numero che si
 		 * 					ottiene non rientra nel range di valori del tipo della colonna;
 		 * - value_too_long: se la colonna è di tipo character o varchar e la lunghezza della stringa è più lunga della dimensione massima consentita.
+		 * Il valore validato da assegnare alla colonna affinchè non si verifichino errori di traduzione.
 		 */
-		void validate_value(std::string value) const throw(data_exception&)
-			{((__isKey && value=="") ? throw key_empty("'" + __columnName + "' is key! Empty strings aren't allowed!") : __columnType->validate_value(value));}
+		std::string validate_value(std::string value) const throw(data_exception&)
+			{if (__isKey && value=="") throw key_empty("'" + __columnName + "' is key! Empty strings aren't allowed!"); return __columnType->validate_value(value);}
 
 		/* Il compito della funzione prepare_value è quello di preparare un valore in modo che esso possa essere parte di un comando sql di inserimento, modifica, cancellazione o
 		 * selezione. Ad esempio, per una stringa di tipo varchar, vengono aggiunti gli apici ad inizio e fine del file e vengono "escaped" i caratteri che devono esserlo.

@@ -15,8 +15,7 @@ using namespace openDB;
 
 record::record (std::unordered_map<std::string, std::string>& valuesMap, std::unordered_map<std::string, column>& columnsMap, enum state _state) throw (basic_exception&) {
 	validate_column_name(valuesMap, columnsMap);
-	if (_state != loaded)
-		validate_columns_value(valuesMap, columnsMap);
+	validate_columns_value(valuesMap, columnsMap);
 	build_value_map(valuesMap, columnsMap);
 	__state = _state;
 	(__state != deleting ? __visible = true : __visible = false);
@@ -98,11 +97,11 @@ void record::validate_column_name(std::unordered_map<std::string, std::string>& 
 			throw column_not_exists("'" + valueMap_it->first + "' column doesn't exists.");
 }
 
-void record::validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) const throw (data_exception&) {
-	for (std::unordered_map<std::string, std::string>::const_iterator valueMap_it = valueMap.begin(); valueMap_it != valueMap.end(); valueMap_it++) {
+void record::validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (data_exception&) {
+	for (std::unordered_map<std::string, std::string>::iterator valueMap_it = valueMap.begin(); valueMap_it != valueMap.end(); valueMap_it++) {
 		if (columnsMap.find(valueMap_it->first)->second.is_key() && valueMap_it->second.empty())
 				throw key_empty("Value for a key-column can not be null or empty!");
-		columnsMap.find(valueMap_it->first)->second.validate_value(valueMap_it->second);
+		valueMap_it->second = columnsMap.find(valueMap_it->first)->second.validate_value(valueMap_it->second);
 	}
 }
 
