@@ -15,7 +15,8 @@ using namespace openDB;
 
 record::record (std::unordered_map<std::string, std::string>& valuesMap, std::unordered_map<std::string, column>& columnsMap, enum state _state) throw (basic_exception&) {
 	validate_column_name(valuesMap, columnsMap);
-	validate_columns_value(valuesMap, columnsMap);
+	if (_state != loaded)
+		validate_columns_value(valuesMap, columnsMap);
 	build_value_map(valuesMap, columnsMap);
 	__state = _state;
 	(__state != deleting ? __visible = true : __visible = false);

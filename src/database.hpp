@@ -187,8 +187,9 @@ private:
 
 
 		/*parte "remota"*/
-		static const std::string __all_column;
-		struct all_column_query_field_name {
+		static const std::string __other_column;
+		static const std::string __key_column;
+		struct column_query_field_name {
 			std::string table_schema;
 			std::string table_name;
 			std::string column_name;
@@ -196,20 +197,11 @@ private:
 			std::string character_maximum_length;
 			std::string numeric_precision;
 			std::string numeric_scale;
-			std::string datetime_precision;
 		};
-		static const all_column_query_field_name all_column_field_name;
-		sqlType::type_base* column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale);
-		void create_structure(table& structure_table);
+		static const column_query_field_name column_field_name;
 
-		static const std::string __key_column;
-		struct key_column_query_field_name {
-			std::string table_schema;
-			std::string table_name;
-			std::string column_name;
-		};
-		static const key_column_query_field_name key_column_field_name;
-		void define_key(table& key_table);
+		sqlType::type_base* column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale);
+		void create_structure(table& structure_table, bool key);
 
 		dbms __remote_database;
 

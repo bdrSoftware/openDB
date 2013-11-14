@@ -84,8 +84,7 @@ public:
 		 * ESEGUENDO QUESTO CODICE VIENE GENERATO ERRORE DI SEGMENTAZIONE. È UNA COSA VOLUTA. IL DISTRUTTORE DI COLUMN DEALLOCA AUTOMATICAMENTE LO SPAZIO
 		 * OCCUPATO DALL'OGGETTO CHE GESTISCE IL TIPO DELLA COLONNA;
 		 */
-		void add_column(std::string columnName,	sqlType::type_base* columnType, bool key = false) throw (column_exists&)
-			{(find_column(columnName) ? throw column_exists("'" + columnName + "' already exists in table'" + __tableName + "'") : __columnsMap.insert(std::pair<std::string, column>(columnName, column(columnName, columnType, this, key))));}
+		void add_column(std::string columnName,	sqlType::type_base* columnType, bool key = false) throw (column_exists&);
 
 		/* La funzione number_of_columns restituisce un intero senza segno corrispondente al numero di colonne che fanno parte della struttura della tabella.
 		 */
@@ -98,11 +97,6 @@ public:
 		 * tabella.
 		 */
 		std::unique_ptr<std::list<std::string>> columns_name (bool attach_table_name = false) const throw ();
-
-		/* La funzione Key_column_name restituisce un oggetto unique_ptr contenente il puntatore ad un oggetto list<string> contenente i nomi delle colonne che compongono
-		 * la chiave primaria per l'ogetto table considerato.
-		 */
-		std::unique_ptr<std::list<std::string>> key_columns_name (bool attach_table_name = false) const throw ();
 
 		/* La funzione find_column restituisce true se una colonna con lo stesso nome di quella indicata compone la struttura della tabella. Restituisce false altrimenti.
 		 */
@@ -126,8 +120,8 @@ public:
 		 * 		_attribute.selectValue("scemo cretino");
 		 *		_column_ref.set_attribute(_attribute);
 		 *		openDB::query_attribute _attribute2 = _column_ref.get_attribute();
-		 *		cout <<"colonna_date will be" <<(!_attribute2.project() ? " not " : " ") <<"projected" <<endl; 
-		 *		cout <<"colonna_date will be" <<(!_attribute2.select() ? " not " : " ") <<"selected" <<endl; 
+		 *		cout <<"colonna_date will be" <<(!_attribute2.project() ? " not " : " ") <<"projected" <<endl;
+		 *		cout <<"colonna_date will be" <<(!_attribute2.select() ? " not " : " ") <<"selected" <<endl;
 		 *		cout <<"colonna_date will be selected with '" <<_attribute2.selectValue() <<"'" <<endl;
 		 *
 		 * oppure
@@ -137,10 +131,10 @@ public:
 		 *		_attribute.selectValue("scemo cretino");
 		 *		_table.get_column("colonna_date").set_attribute(_attribute);
 		 *		openDB::query_attribute _attribute2 = _table.get_column("colonna_date").get_attribute();
-		 *		cout <<"colonna_date will be" <<(!_attribute2.project() ? " not " : " ") <<"projected" <<endl; 
-		 *		cout <<"colonna_date will be" <<(!_attribute2.select() ? " not " : " ") <<"selected" <<endl; 
-		 *		cout <<"colonna_date will be selected with " <<_attribute2.selectValue() <<endl; 
-		 * 
+		 *		cout <<"colonna_date will be" <<(!_attribute2.project() ? " not " : " ") <<"projected" <<endl;
+		 *		cout <<"colonna_date will be" <<(!_attribute2.select() ? " not " : " ") <<"selected" <<endl;
+		 *		cout <<"colonna_date will be selected with " <<_attribute2.selectValue() <<endl;
+		 *
 		 * entrambi generano il seguente output:
 		 *
 		 * 	colonna_date will be projected
@@ -158,7 +152,7 @@ public:
 		 *
 		 * 		try {_table.get_column("colonna_date").validate_value("05/12/13");}
 		 *		catch (openDB::data_exception& e) {cout <<e.what() <<endl;}
-		 * 
+		 *
 		 * il cui output, in entrambi i casi, è il seguente:
 		 *
 		 * 		Ambiguous value for type 'date': 05/12/13 is ambiguous.
@@ -298,7 +292,7 @@ public:
 		 * 	- fileName: nome del file di output;
 		 *	- print_row: se true le tabelle verranno evidenziate con un colore di sfondo alternato, in modo da facilitare la lettura;
 		 *	- bgcolor: codice esadecimale del colore di sfondo. se print_row è false, questo parametro viene ignorato. Il codice esadecimane dello sfondo
-		 *		   deve essere preceduto dal carattere '#'. es. "#e6e6e6". 
+		 *		   deve essere preceduto dal carattere '#'. es. "#e6e6e6".
 		 * La funzione può generare una eccezione di tipo :
 		 *  - file_creation: nel caso non sia possibile creare fileName
 		 *  - record_not_exists: se non esiste nessun record che sia in corrispondenza valida con la chiave contenuta nel parametro ID specifico
@@ -326,7 +320,7 @@ private:
 																			 * 	chiave. Di conseguenza l'ordine in cui compaiono scorrendo il contenitore potrebbe differire dall'
 																			 * 	ordine di creazione.
 																			 */
-
+		std::list<std::string> __columnsOrder;
 		/* La funzione get_iterator restituisce un iteratore valido ad un oggetto di classe column. Se l'oggetto non dovesse esistere, viene generata una eccezione
 		 * di tipo column_not_exist, derivata da access_exception.
 		 * Queste funzioni relativamente semplici vengono usate praticamente ovunque, all'interno di questo modulo, qualora si deve accedere ad un oggetto column, poichè

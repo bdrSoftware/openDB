@@ -22,44 +22,22 @@ const unsigned num_tuples = 50;
 
 int main () {
 	try {
-		openDB::table _table("prova", "", 0, false, false);
+		openDB::database _database;
+		_database.host("192.168.1.4");
+		_database.port("5432");
+		_database.dbname("platinet_test");
+		_database.user("platinet");
+		_database.passwd("c0n0gel4t0");
 
-		_table.add_column("boolean", new openDB::sqlType::boolean);
-		_table.add_column("date", new openDB::sqlType::date);
-		_table.add_column("time", new openDB::sqlType::time);
+		_database.connect();
+		_database.load_structure();
+		_database.load_tuple();
 
-		unordered_map<string, string> value1 = {
-			{"boolean", "true"},
-			{"date", "20/01/1990"},
-			{"time", "23:04"}
-		};
-		unordered_map<string, string> value2 = {
-			{"boolean", "false"},
-			{"date", "20/01/1990"},
-			{"time", "23:4:0"}
-		};
-		unordered_map<string, string> value3 = {
-			{"boolean", "true"},
-			{"date", "20/1/1990"},
-			{"time", "23:04:00"}
-		};
-		unordered_map<string, string> value4 = {
-			{"boolean", "true"},
-			{"date", "1990/1/22"},
-			{"time", "23:04:00"}
-		};
-		unordered_map<string, string> value5 = {
-			{"boolean", "true"},
-			{"date", "1990-1-22"},
-			{"time", "23:04:00"}
-		};
+		openDB::table& _table = _database["public"]["fornitori"];
 
-
-		_table.insert(value1);
-		_table.insert(value2);
-		_table.insert(value3);
-		_table.insert(value4);
-		_table.insert(value5);
+		unique_ptr<list<string>> column_name = _table.columns_name();
+		for (list<string>::const_iterator it = column_name->begin(); it != column_name->end(); it++)
+			cout <<*it <<endl;
 
 		_table.to_html("/tmp/prova.html");
 

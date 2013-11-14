@@ -25,7 +25,7 @@ $(BIN_DIR):
 clean :
 	rm -rf $(LIB_DEST)libopenDB.so $(LIB_DEST)libopenDB.a $(OBJ) $(BIN_DIR)unitTest.o $(BIN_DIR)unitTest $(OBJ_DIR) $(BIN_DIR)
 
-install: openDB
+install:
 	mkdir -p $(HEADER_DIR)
 	mkdir -p $(HEADER_DIR)src/
 	cp -f openDB.hpp $(HEADER_DIR)

@@ -24,11 +24,13 @@
 
 using namespace openDB;
 
-
 const std::string database::__tmpStorageDirectory = "platinet";
 
-const std::string database::__all_column = "select col.table_schema,col.table_name,col.column_name,col.udt_name,col.character_maximum_length,col.numeric_precision,col.numeric_scale,col.datetime_precision from information_schema.columns col where col.table_schema not in('pg_catalog', 'information_schema') order by col.table_schema, col.table_name, col.ordinal_position desc";
-const database::all_column_query_field_name database::all_column_field_name = {
+const std::string database::__other_column = "select col.table_schema,col.table_name,col.column_name,col.udt_name,col.character_maximum_length,col.numeric_precision,col.numeric_scale from information_schema.columns col where col.table_schema not in('pg_catalog', 'information_schema') and (col.table_schema, col.table_name, col.column_name) not in (select col.table_schema, col.table_name, col.column_name from information_schema.columns col join information_schema.constraint_column_usage ccl on col.table_schema=ccl.table_schema and col.table_name=ccl.table_name and col.column_name=ccl.column_name join information_schema.table_constraints ts on ccl.constraint_name=ts.constraint_name where ts.constraint_type = 'PRIMARY KEY' and col.table_schema not in ('pg_catalog','information_schema')) order by col.table_schema,col.table_name, col.ordinal_position";
+const std::string database::__key_column  = "select col.table_schema,col.table_name,col.column_name,col.udt_name,col.character_maximum_length,col.numeric_precision,col.numeric_scale from information_schema.columns col where col.table_schema not in('pg_catalog', 'information_schema') and (col.table_schema, col.table_name, col.column_name) in (select col.table_schema, col.table_name, col.column_name from information_schema.columns col join information_schema.constraint_column_usage ccl on col.table_schema=ccl.table_schema and col.table_name=ccl.table_name and col.column_name=ccl.column_name join information_schema.table_constraints ts on ccl.constraint_name=ts.constraint_name where ts.constraint_type = 'PRIMARY KEY' and col.table_schema not in ('pg_catalog','information_schema')) order by col.table_schema,col.table_name, col.ordinal_position";
+
+
+const database::column_query_field_name database::column_field_name = {
 		"table_schema",
 		"table_name",
 		"column_name",
@@ -36,15 +38,8 @@ const database::all_column_query_field_name database::all_column_field_name = {
 		"character_maximum_length",
 		"numeric_precision",
 		"numeric_scale",
-		"datetime_precision",
 };
 
-const std::string database::__key_column = "select col.table_schema, col.table_name, col.column_name from information_schema.columns col join information_schema.constraint_column_usage ccl on col.table_schema=ccl.table_schema and col.table_name=ccl.table_name and col.column_name=ccl.column_name join information_schema.table_constraints ts on ccl.constraint_name=ts.constraint_name where ts.constraint_type = 'PRIMARY KEY' and col.table_schema not in ('pg_catalog','information_schema')";
-const database::key_column_query_field_name database::key_column_field_name = {
-		"table_schema",
-		"table_name",
-		"column_name"
-};
 
 database::database(unsigned _cuncurrend_connection) throw (storage_exception&) : __remote_database(_cuncurrend_connection) {
 	#if !defined __WINDOWS_VERSION
@@ -83,19 +78,17 @@ std::unordered_map<std::string, schema>::iterator database::get_iterator(std::st
 
 void database::load_structure() throw (basic_exception&) {
 	__schemasMap.clear();
-	unsigned int key_column_id = __remote_database.exec_query_noblock(__key_column);
-	unsigned int all_column_id = __remote_database.exec_query(__all_column);
+	unsigned int other_column_id = __remote_database.exec_query_noblock(__other_column);
+	unsigned int key_column_id = __remote_database.exec_query(__key_column);
 
-	//creazione della struttura del database
-	table& _all_column_table = __remote_database.get_result(all_column_id);
-	create_structure(_all_column_table);
-	__remote_database.erase(all_column_id);
-
-	//definizione delle colonne chiave
-	while(!__remote_database.executed(key_column_id)); //attesa completamento query
 	table& _key_column_table = __remote_database.get_result(key_column_id);
-	define_key(_key_column_table);
+	create_structure(_key_column_table, true);
 	__remote_database.erase(key_column_id);
+
+	while(!__remote_database.executed(other_column_id)); //attesa completamento query
+	table& _other_column_table = __remote_database.get_result(other_column_id);
+	create_structure(_other_column_table, false);
+	__remote_database.erase(other_column_id);
 }
 
 sqlType::type_base* database::column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale) {
@@ -132,17 +125,17 @@ sqlType::type_base* database::column_type(std::string udt_name, std::string char
 	return 0;
 }
 
-void database::create_structure(table& structure_table) {
+void database::create_structure(table& structure_table, bool key) {
 	std::unique_ptr<std::list<unsigned long>> _all_column_table_tupleID = structure_table.internalID();
 	for (std::list<unsigned long>::const_iterator it = _all_column_table_tupleID->begin(); it != _all_column_table_tupleID->end(); it++) {
 		std::unique_ptr<std::unordered_map<std::string, std::string>> tuple = structure_table.current(*it);
-		std::string schema_name = tuple->find(all_column_field_name.table_schema)->second;
-		std::string table_name = tuple->find(all_column_field_name.table_name)->second;
-		std::string column_name = tuple->find(all_column_field_name.column_name)->second;
-		std::string udt_name = tuple->find(all_column_field_name.udt_name)->second;
-		std::string character_maximum = tuple->find(all_column_field_name.character_maximum_length)->second;
-		std::string numeric_precision = tuple->find(all_column_field_name.numeric_precision)->second;
-		std::string numeric_scale = tuple->find(all_column_field_name.numeric_scale)->second;
+		std::string schema_name = tuple->find(column_field_name.table_schema)->second;
+		std::string table_name = tuple->find(column_field_name.table_name)->second;
+		std::string column_name = tuple->find(column_field_name.column_name)->second;
+		std::string udt_name = tuple->find(column_field_name.udt_name)->second;
+		std::string character_maximum = tuple->find(column_field_name.character_maximum_length)->second;
+		std::string numeric_precision = tuple->find(column_field_name.numeric_precision)->second;
+		std::string numeric_scale = tuple->find(column_field_name.numeric_scale)->second;
 		sqlType::type_base* type = column_type(udt_name, character_maximum, numeric_precision, numeric_scale);
 
 		if (!find_schema(schema_name))
@@ -151,18 +144,9 @@ void database::create_structure(table& structure_table) {
 		if (!_schema.find_table(table_name))
 			_schema.add_table(table_name);
 		table& _table = _schema.get_table(table_name);
-		_table.add_column(column_name, type);
-	}
-}
-
-void database::define_key(table& key_table) {
-	std::unique_ptr<std::list<unsigned long>> _key_column_table_tupleID = key_table.internalID();
-	for (std::list<unsigned long>::const_iterator it = _key_column_table_tupleID->begin(); it != _key_column_table_tupleID->end(); it++) {
-		std::unique_ptr<std::unordered_map<std::string, std::string>> tuple = key_table.current(*it);
-		std::string schema_name = tuple->find(key_column_field_name.table_schema)->second;
-		std::string table_name = tuple->find(key_column_field_name.table_name)->second;
-		std::string column_name = tuple->find(key_column_field_name.column_name)->second;
-		get_schema(schema_name).get_table(table_name).get_column(column_name).is_key(true);
+		_table.add_column(column_name, type, key);
+		if (schema_name == "public" && table_name == "fornitori")
+			std::cout <<"aggiunta " <<schema_name <<"." <<table_name <<"." <<column_name <<(key ? " chiave" : "") <<std::endl;
 	}
 }
 
