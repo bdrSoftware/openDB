@@ -92,35 +92,33 @@ void database::load_structure() throw (basic_exception&) {
 }
 
 sqlType::type_base* database::column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale) {
-	if (udt_name == "varchar") {
+	if (udt_name == sqlType::varchar::udt_name)
 		if (character_maximum_length.empty())
 			return new sqlType::varchar;
 		else
 			return new sqlType::varchar(std::stoul(character_maximum_length));
-	}
-	if (udt_name == "bpchar") {
+	if (udt_name == sqlType::character::udt_name)
 		if (character_maximum_length.empty())
 			return new sqlType::character;
 		else
 			return new sqlType::character(std::stoul(character_maximum_length));
-	}
-	if (udt_name == "int2")
+	if (udt_name == sqlType::smallint::udt_name)
 		return new sqlType::smallint;
-	if (udt_name == "int4")
+	if (udt_name == sqlType::integer::udt_name)
 		return new sqlType::integer;
-	if (udt_name == "int8")
+	if (udt_name == sqlType::bigint::udt_name)
 		return new sqlType::bigint;
-	if (udt_name == "float4")
+	if (udt_name == sqlType::real::udt_name)
 		return new sqlType::real;
-	if (udt_name == "float8")
+	if (udt_name == sqlType::double_precision::udt_name)
 		return new sqlType::double_precision;
-	if (udt_name == "numeric")
+	if (udt_name == sqlType::numeric::udt_name)
 		return new sqlType::numeric(std::stoul(numeric_precision), std::stoul(numeric_scale));
-	if (udt_name == "bool")
+	if (udt_name == sqlType::boolean::udt_name)
 		return new sqlType::boolean;
-	if (udt_name == "date")
+	if (udt_name == sqlType::date::udt_name)
 		return new sqlType::date;
-	if (udt_name == "time")
+	if (udt_name == sqlType::time::udt_name)
 		return new sqlType::time;
 	return 0;
 }
@@ -145,8 +143,6 @@ void database::create_structure(table& structure_table, bool key) {
 			_schema.add_table(table_name);
 		table& _table = _schema.get_table(table_name);
 		_table.add_column(column_name, type, key);
-		if (schema_name == "public" && table_name == "fornitori")
-			std::cout <<"aggiunta " <<schema_name <<"." <<table_name <<"." <<column_name <<(key ? " chiave" : "") <<std::endl;
 	}
 }
 

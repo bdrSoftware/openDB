@@ -17,32 +17,43 @@ using namespace openDB;
 using namespace sqlType;
 
 const std::string boolean::type_name = "boolean";
+const std::string boolean::udt_name = "bool";
 const std::string boolean::true_default = "true";
 const std::string boolean::false_default = "false";
 const std::list<std::string> boolean::true_value = {true_default, "TRUE", "t", "y", "yes", "on", "1"};
 const std::list<std::string> boolean::false_value = {false_default, "FALSE", "f", "n", "no", "off", "0"};
 const std::string date::type_name = "date";
+const std::string date::udt_name = "date";
 const std::string date::separator = "/-";
 const std::string date::qt4_format = "dd/MM/yyyy";
 const std::string time::type_name = "time";
+const std::string time::udt_name = "time";
 const std::string time::separator = ":.";
 const std::string time::qt4_format = "hh:mm:ss";
 const std::string character::type_name = "character";
+const std::string character::udt_name = "bpchar";
 const std::string varchar::type_name = "varchar";
+const std::string varchar::udt_name = "varchar";
 const std::string smallint::type_name = "smallint";
+const std::string smallint::udt_name = "int2";
 const std::string integer::type_name = "integer";
+const std::string integer::udt_name = "int4";
 const long int integer::min = std::numeric_limits<int>::min();
 const long int integer::max = std::numeric_limits<int>::max();
 const std::string bigint::type_name = "bigint";
+const std::string bigint::udt_name = "int8";
 const long long bigint::min = std::numeric_limits<long long>::min();
 const long long bigint::max = std::numeric_limits<long long>::max();
 const std::string real::type_name = "real";
+const std::string real::udt_name = "float4";
 const float real::min = std::numeric_limits<float>::lowest();
 const float real::max = std::numeric_limits<float>::max();
 const std::string double_precision::type_name = "double precision";
+const std::string double_precision::udt_name = "float8";
 const long double double_precision::min = std::numeric_limits<long double>::lowest();
 const long double double_precision::max = std::numeric_limits<long double>::max();
 const std::string numeric::type_name = "numeric";
+const std::string numeric::udt_name = "numeric";
 
 
 std::string boolean::validate_value(std::string value) const throw(data_exception&) {
@@ -243,24 +254,28 @@ type_info::type_info() : type_name(), numeric_precision(0), numeric_scale(0), vc
 struct openDB::sqlType::type_info boolean::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info date::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info time::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info varchar::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	info.vchar_length = length;
 	return info;
 }
@@ -269,42 +284,49 @@ struct openDB::sqlType::type_info character::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
 	info.vchar_length = length;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info smallint::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info integer::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info bigint::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info real::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info double_precision::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 
 struct openDB::sqlType::type_info numeric::get_type_info() const throw () {
 	type_info info;
 	info.type_name = type_name;
+	info.udt_name = udt_name;
 	return info;
 }
 

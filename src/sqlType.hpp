@@ -61,6 +61,7 @@ public:
  */
 struct type_info {
 	std::string type_name;
+	std::string udt_name;
 	unsigned numeric_precision;
 	unsigned numeric_scale;
 	unsigned vchar_length;
@@ -85,6 +86,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const std::string true_default;
 		static const std::string false_default;
 		static const std::list<std::string> true_value;	/*Le stringhe ammesse per rappresentare il valore booleano true sono "TRUE", "t", "true", "y", "yes", "on", "1"*/
@@ -115,6 +117,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const std::string separator;
 		static const std::string qt4_format;
 private:
@@ -158,6 +161,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const std::string separator;
 		static const std::string qt4_format;
 private:
@@ -205,6 +209,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const unsigned max_length = 1048576;
 		static const unsigned default_length = 1;
 
@@ -237,6 +242,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const unsigned max_length = 1048576;
 		static const unsigned default_length = 1048576;
 
@@ -264,6 +270,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const int min = -32768;	/*	limite superiore del bound dei valori	*/
 		static const int max = 32767;	/*	limite inferiore del bound dei valori	*/
 };
@@ -286,6 +293,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const long int min;	/*	limite superiore del bound dei valori	*/
 		static const long int max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -310,6 +318,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const long long min;	/*	limite superiore del bound dei valori	*/
 		static const long long max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -340,6 +349,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const float min;	/*	limite superiore del bound dei valori	*/
 		static const float max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -368,6 +378,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const long double min;	/*	limite superiore del bound dei valori	*/
 		static const long double max;	/*	limite inferiore del bound dei valori	*/
 };
@@ -406,6 +417,7 @@ public:
 		virtual struct type_info get_type_info() const throw ();
 
 		static const std::string type_name;
+		static const std::string udt_name;
 		static const unsigned max_precision = 1000;				/*	massimo numero di cifre		*/
 		static const unsigned default_precision = 1000;			/*	numero di cifre di default	*/
 		static const unsigned max_scale = 1000;					/*	numero massimo di cifre significative	*/
