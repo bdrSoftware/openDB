@@ -10,20 +10,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <QApplication>
+#include <QtGui>
+#include <unordered_map>
 #include "database.hpp"
-#include "connection.hpp"
-#include <iostream>
+#include "login_dialog.hpp"
+#include "insert_table.hpp"
+#include "update_table.hpp"
 using namespace std;
 
-void print_list(const list<string>& _list);
 
-const unsigned num_conn = 5;
-const unsigned num_tuples = 50;
+int main(int argc, char* argv[])
+{
+	QApplication application(argc, argv);
 
-int main () {
 	try {
+
 		openDB::database _database;
-		_database.host("192.168.1.4");
+		_database.host("milky.no-ip.biz");
 		_database.port("5432");
 		_database.dbname("platinet_test");
 		_database.user("platinet");
@@ -35,18 +39,14 @@ int main () {
 
 		openDB::table& _table = _database["public"]["fornitori"];
 
-		unique_ptr<list<string>> column_name = _table.columns_name();
-		for (list<string>::const_iterator it = column_name->begin(); it != column_name->end(); it++)
-			cout <<*it <<endl;
-
+		openDB::insert_table_dialog* _update_dialog = new openDB::insert_table_dialog(_table);
+		_update_dialog->show();
+		application.exec();
 		_table.to_html("/tmp/prova.html");
 
 	}
-	catch (openDB::basic_exception& e) {cout <<e.what() <<endl;}
-}
+	catch (openDB::basic_exception& e) {
+		QMessageBox::warning(0, "Generata eccezione non gestita.", e.what().c_str(), QMessageBox::Ok);
 
-
-void print_list(const list<string>& _list) {
-	for (list<string>::const_iterator it = _list.begin(); it!=_list.end(); it++)
-		cout <<*it <<endl;
+	}
 }

@@ -92,16 +92,18 @@ void database::load_structure() throw (basic_exception&) {
 }
 
 sqlType::type_base* database::column_type(std::string udt_name, std::string character_maximum_length, std::string numeric_precision, std::string numeric_scale) {
-	if (udt_name == sqlType::varchar::udt_name)
+	if (udt_name == sqlType::varchar::udt_name) {
 		if (character_maximum_length.empty())
 			return new sqlType::varchar;
 		else
 			return new sqlType::varchar(std::stoul(character_maximum_length));
-	if (udt_name == sqlType::character::udt_name)
+	}
+	if (udt_name == sqlType::character::udt_name) {
 		if (character_maximum_length.empty())
 			return new sqlType::character;
 		else
 			return new sqlType::character(std::stoul(character_maximum_length));
+	}
 	if (udt_name == sqlType::smallint::udt_name)
 		return new sqlType::smallint;
 	if (udt_name == sqlType::integer::udt_name)
