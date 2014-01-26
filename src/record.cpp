@@ -1,4 +1,4 @@
-/* Copyright 2013 Salvatore Barone <salvator.barone@gmail.com>
+/* Copyright 2013-2014 Salvatore Barone <salvator.barone@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -101,19 +101,19 @@ void record::validate_column_name(std::unordered_map<std::string, std::string>& 
 void record::validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (data_exception&) {
 	for (std::unordered_map<std::string, std::string>::iterator valueMap_it = valueMap.begin(); valueMap_it != valueMap.end(); valueMap_it++) {
 		if (columnsMap.find(valueMap_it->first)->second.is_key() && valueMap_it->second.empty())
-				throw key_empty("Value for a key-column can not be null or empty!");
+				throw empty_key("Value for a key-column can not be null or empty!");
 		valueMap_it->second = columnsMap.find(valueMap_it->first)->second.validate_value(valueMap_it->second);
 	}
 }
 
-void record::build_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (key_empty&) {
+void record::build_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (empty_key&) {
 	for (std::unordered_map<std::string, column>::const_iterator columnsMap_it = columnsMap.begin(); columnsMap_it != columnsMap.end(); columnsMap_it++) {
 		std::unordered_map<std::string, std::string>::const_iterator valueMap_it = valueMap.find(columnsMap_it->first);
 		if (valueMap_it!=valueMap.end())
 			__valueMap.insert(std::pair<std::string, value>(valueMap_it->first, value(valueMap_it->second, "")));
 		else
 			if (columnsMap_it->second.is_key())
-				throw key_empty("Value for a key-column can not be null or empty!");
+				throw empty_key("Value for a key-column can not be null or empty!");
 	}
 }
 

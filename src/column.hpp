@@ -1,4 +1,4 @@
-/* Copyright 2013 Salvatore Barone <salvator.barone@gmail.com>
+/* Copyright 2013-2014 Salvatore Barone <salvator.barone@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -90,7 +90,7 @@ public:
 		 * Il valore validato da assegnare alla colonna affinchè non si verifichino errori di traduzione.
 		 */
 		std::string validate_value(std::string value) const throw(data_exception&)
-			{if (__isKey && value=="") throw key_empty("'" + __columnName + "' is key! Empty strings aren't allowed!"); return __columnType->validate_value(value);}
+			{if (__isKey && value=="") throw empty_key("'" + __columnName + "' is key! Empty strings aren't allowed!"); return __columnType->validate_value(value);}
 
 		/* Il compito della funzione prepare_value è quello di preparare un valore in modo che esso possa essere parte di un comando sql di inserimento, modifica, cancellazione o
 		 * selezione. Ad esempio, per una stringa di tipo varchar, vengono aggiunti gli apici ad inizio e fine del file e vengono "escaped" i caratteri che devono esserlo.

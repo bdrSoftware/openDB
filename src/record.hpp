@@ -1,4 +1,4 @@
-/* Copyright 2013 Salvatore Barone <salvator.barone@gmail.com>
+/* Copyright 2013-2014 Salvatore Barone <salvator.barone@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -110,7 +110,7 @@ private:
 
 	void validate_column_name(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) const throw (column_not_exists&);
 	void validate_columns_value(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (data_exception&);
-	void build_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (key_empty&);
+	void build_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw (empty_key&);
 	void update_value_map(std::unordered_map<std::string, std::string>& valueMap, std::unordered_map<std::string, column>& columnsMap) throw ();
 
 };	/*	end of record declaration	*/
